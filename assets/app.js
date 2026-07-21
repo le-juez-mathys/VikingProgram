@@ -678,12 +678,24 @@ function renderChronicle(elId){
     el.innerHTML = '<div class="empty-note">Aucune quête gravée pour l\'instant. Pars à l\'aventure depuis le tableau de bord.</div>';
     return;
   }
-  el.innerHTML = state.log.slice(-50).map(entry => `
+  const startIndex = Math.max(0, state.log.length - 50);
+  el.innerHTML = state.log.slice(startIndex).map((entry, i) => {
+    const realIndex = startIndex + i;
+    return `
     <div class="chronicle-entry">
       <div class="c-left">${entry.label}<span class="c-date">${entry.date}</span></div>
       <div class="c-xp">+${entry.xp} XP</div>
+      <button class="c-delete" title="Supprimer cette quête de la chronique" onclick="deleteLogEntry(${realIndex}, '${elId}')">✕</button>
     </div>
-  `).join("");
+  `;
+  }).join("");
+}
+
+function deleteLogEntry(index, elId){
+  if(!confirm("Supprimer cette quête de la chronique ? L'XP et les stats déjà gagnées restent acquises — seule l'entrée d'historique disparaît.")) return;
+  state.log.splice(index, 1);
+  saveState();
+  renderChronicle(elId);
 }
 
 /* =========================================================
