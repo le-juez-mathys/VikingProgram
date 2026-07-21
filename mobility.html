@@ -37,12 +37,14 @@
   </div>
 </div>
 
-<footer>Saga du Viking · tes données restent dans ce navigateur (localStorage)</footer>
+<footer>Saga du Viking · tes données restent stockées sur cet appareil (stockage persistant du navigateur)</footer>
 
 <script src="assets/app.js"></script>
 <script>
-  initPage("mobility");
-  buildExerciseInputs("exo-container", "mobility");
+  (async () => {
+    await initPage("mobility");
+    buildExerciseInputs("exo-container", "mobility");
+  })();
 
   const EFFORT_LABELS = {1:"Légère", 2:"Modérée", 3:"Intense"};
   document.getElementById("effort").addEventListener("input", e => {

@@ -55,16 +55,18 @@
 
 </div>
 
-<footer>Saga du Viking · tes données restent dans ce navigateur (localStorage)</footer>
+<footer>Saga du Viking · tes données restent stockées sur cet appareil (stockage persistant du navigateur)</footer>
 
 <script src="assets/app.js"></script>
 <script>
-  initPage("index");
-  renderFullSheet("full-sheet");
-  renderAvatarWidget("avatar-panel");
-  renderPaceEstimate("pace-estimate");
-  renderDashboardCards("cat-grid");
-  renderChronicle("chronicle-list");
+  (async () => {
+    await initPage("index");
+    renderFullSheet("full-sheet");
+    renderAvatarWidget("avatar-panel");
+    renderPaceEstimate("pace-estimate");
+    renderDashboardCards("cat-grid");
+    renderChronicle("chronicle-list");
+  })();
 </script>
 </body>
 </html>

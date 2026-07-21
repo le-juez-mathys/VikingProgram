@@ -3,6 +3,59 @@
    ========================================================= */
 
 const STORAGE_KEY = "vikingSagaCharacter_v2";
+const DB_NAME = "vikingSagaDB";
+const DB_STORE = "kv";
+const DB_VERSION = 1;
+
+/* ---------- Couche de stockage persistant (IndexedDB) ----------
+   Remplace le localStorage brut par IndexedDB : plus de capacité,
+   plus robuste, et strictement transparent pour le reste du code —
+   loadState()/saveState() gardent la même fonction, juste en asynchrone. */
+
+let _dbPromise = null;
+function openDB(){
+  if(_dbPromise) return _dbPromise;
+  _dbPromise = new Promise((resolve, reject) => {
+    if(!("indexedDB" in window)){ reject(new Error("IndexedDB indisponible")); return; }
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE);
+    };
+    req.onsuccess = (e) => resolve(e.target.result);
+    req.onerror = (e) => reject(e.target.error);
+  });
+  return _dbPromise;
+}
+
+async function idbGet(key){
+  try{
+    const db = await openDB();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(DB_STORE, "readonly");
+      const req = tx.objectStore(DB_STORE).get(key);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }catch(e){
+    return undefined;
+  }
+}
+
+async function idbSet(key, value){
+  try{
+    const db = await openDB();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(DB_STORE, "readwrite");
+      const req = tx.objectStore(DB_STORE).put(value, key);
+      req.onsuccess = () => resolve(true);
+      req.onerror = () => reject(req.error);
+    });
+  }catch(e){
+    console.error("Impossible d'enregistrer la progression :", e);
+    return false;
+  }
+}
 
 /* ---------- Programme d'entraînement ---------- */
 const PROGRAM = {
@@ -126,10 +179,21 @@ function defaultState(){
   };
 }
 
-function loadState(){
+async function loadState(){
   try{
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    state = raw ? JSON.parse(raw) : defaultState();
+    let saved = await idbGet(STORAGE_KEY);
+    if(!saved){
+      // Migration silencieuse d'une éventuelle ancienne sauvegarde localStorage —
+      // totalement transparente pour la personne : sa progression n'est pas perdue.
+      const legacyRaw = window.localStorage.getItem(STORAGE_KEY);
+      if(legacyRaw){
+        try{
+          saved = JSON.parse(legacyRaw);
+          await idbSet(STORAGE_KEY, saved);
+        }catch(e){ saved = null; }
+      }
+    }
+    state = saved || defaultState();
     if(!state.records) state.records = {};
     if(state.firstLogDate === undefined) state.firstLogDate = null;
     if(state.totalXPEarned === undefined) state.totalXPEarned = 0;
@@ -138,12 +202,8 @@ function loadState(){
   }
 }
 
-function saveState(){
-  try{
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }catch(e){
-    console.error("Impossible d'enregistrer la progression :", e);
-  }
+async function saveState(){
+  await idbSet(STORAGE_KEY, state);
 }
 
 function xpNeededFor(level){ return 100 + (level - 1) * 60; }
@@ -296,10 +356,10 @@ function logNutritionDay(objectifRespecte, proteinesRespectees, eauLitres){
   return { xpGain, leveledUp };
 }
 
-function resetCharacter(){
+async function resetCharacter(){
   if(confirm("Effacer toute la progression de ce personnage ? Cette action est irréversible.")){
     state = defaultState();
-    saveState();
+    await saveState();
     location.reload();
   }
 }
@@ -337,8 +397,8 @@ function renderMiniBar(){
   `;
 }
 
-function initPage(activeKey){
-  loadState();
+async function initPage(activeKey){
+  await loadState();
   const navEl = document.getElementById("nav-container");
   if(navEl) navEl.innerHTML = renderNav(activeKey);
   const barEl = document.getElementById("minibar-container");

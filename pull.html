@@ -44,11 +44,10 @@
   </div>
 </div>
 
-<footer>Saga du Viking · tes données restent dans ce navigateur (localStorage)</footer>
+<footer>Saga du Viking · tes données restent stockées sur cet appareil (stockage persistant du navigateur)</footer>
 
 <script src="assets/app.js"></script>
 <script>
-  initPage("pull");
   let currentVariant = "pull";
 
   function switchVariant(v){
@@ -77,7 +76,10 @@
     }
   }
 
-  switchVariant("pull");
+  (async () => {
+    await initPage("pull");
+    switchVariant("pull");
+  })();
 </script>
 </body>
 </html>

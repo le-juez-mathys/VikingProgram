@@ -28,21 +28,23 @@
   </div>
 </div>
 
-<footer>Saga du Viking · tes données restent dans ce navigateur (localStorage)</footer>
+<footer>Saga du Viking · tes données restent stockées sur cet appareil (stockage persistant du navigateur)</footer>
 
 <script src="assets/app.js"></script>
 <script>
-  initPage("corps");
-  document.getElementById("bodymap").innerHTML = bodyMapSVG();
-  highlightBodyZones("bodymap", []);
+  (async () => {
+    await initPage("corps");
+    document.getElementById("bodymap").innerHTML = bodyMapSVG();
+    highlightBodyZones("bodymap", []);
 
-  const grid = document.getElementById("zone-grid");
-  grid.innerHTML = Object.entries(ZONE_EXERCISES).map(([key, zone]) => `
-    <div class="zone-card" onmouseenter="highlightBodyZones('bodymap', ['${key}'])" onmouseleave="highlightBodyZones('bodymap', [])" onclick="highlightBodyZones('bodymap', ['${key}'])">
-      <div class="zc-label">${zone.label} <span style="font-family:var(--font-mono); font-size:10px; color:var(--parchment-dim);">(${zone.view === 'front' ? 'face' : 'dos'})</span></div>
-      <ul>${zone.exos.map(e => `<li>${e}</li>`).join("")}</ul>
-    </div>
-  `).join("");
+    const grid = document.getElementById("zone-grid");
+    grid.innerHTML = Object.entries(ZONE_EXERCISES).map(([key, zone]) => `
+      <div class="zone-card" onmouseenter="highlightBodyZones('bodymap', ['${key}'])" onmouseleave="highlightBodyZones('bodymap', [])" onclick="highlightBodyZones('bodymap', ['${key}'])">
+        <div class="zc-label">${zone.label} <span style="font-family:var(--font-mono); font-size:10px; color:var(--parchment-dim);">(${zone.view === 'front' ? 'face' : 'dos'})</span></div>
+        <ul>${zone.exos.map(e => `<li>${e}</li>`).join("")}</ul>
+      </div>
+    `).join("");
+  })();
 </script>
 </body>
 </html>

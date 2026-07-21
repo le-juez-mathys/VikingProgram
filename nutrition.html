@@ -123,12 +123,10 @@
   </div>
 </div>
 
-<footer>Saga du Viking · tes données restent dans ce navigateur (localStorage)</footer>
+<footer>Saga du Viking · tes données restent stockées sur cet appareil (stockage persistant du navigateur)</footer>
 
 <script src="assets/app.js"></script>
 <script>
-  initPage("nutrition");
-
   let selectedWeek = currentWeekIndex();
 
   function renderWeekSelect(){
@@ -179,9 +177,12 @@
     `).join("");
   }
 
-  renderWeekSelect();
-  renderMenuTable();
-  renderSnacks();
+  (async () => {
+    await initPage("nutrition");
+    renderWeekSelect();
+    renderMenuTable();
+    renderSnacks();
+  })();
 
   function validateNutrition(){
     const objCal = document.getElementById("obj-calorique").checked;
