@@ -3,6 +3,92 @@
    ========================================================= */
 
 const STORAGE_KEY = "vikingSagaCharacter_v2";
+const CODE_KEY = "vikingSagaCode";
+
+/* ---------- Code de sauvegarde (identifiant de synchronisation) ----------
+   Ce code (ex: "loup-argent-482") permet de retrouver la même progression
+   sur un autre appareil ou navigateur. Il est stocké localement pour ne pas
+   avoir à le retaper à chaque visite sur le même appareil. */
+
+function generateSaveCode(){
+  const ADJ = ["argent","fer","brave","feu","glace","tonnerre","ombre","or","sang","givre"];
+  const NOUN = ["loup","ours","faucon","corbeau","dragon","serpent","aigle","sanglier","renard","lynx"];
+  const adj = ADJ[Math.floor(Math.random() * ADJ.length)];
+  const noun = NOUN[Math.floor(Math.random() * NOUN.length)];
+  const num = Math.floor(100 + Math.random() * 900);
+  return `${adj}-${noun}-${num}`;
+}
+
+function getSaveCode(){
+  let code = window.localStorage.getItem(CODE_KEY);
+  if(!code){
+    code = generateSaveCode();
+    window.localStorage.setItem(CODE_KEY, code);
+  }
+  return code;
+}
+
+function setSaveCode(code){
+  const clean = code.trim().toLowerCase();
+  if(clean) window.localStorage.setItem(CODE_KEY, clean);
+}
+
+function copySaveCode(){
+  const code = getSaveCode();
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(code).then(
+      () => showSimpleToast("Code copié ! Colle-le sur ton autre appareil."),
+      () => showSimpleToast(`Ton code : ${code}`)
+    );
+  } else {
+    showSimpleToast(`Ton code : ${code}`);
+  }
+}
+
+async function promptChangeSaveCode(){
+  const input = window.prompt(
+    "Entre le code de sauvegarde affiché sur ton autre appareil pour retrouver ta progression ici :",
+    getSaveCode()
+  );
+  if(!input) return;
+  setSaveCode(input);
+  location.reload();
+}
+
+/* ---------- Synchronisation cloud (Firestore) ----------
+   Si assets/firebase-config.js a été configuré, la variable globale `db`
+   existe et chaque sauvegarde locale est aussi poussée en ligne, sous le
+   document characters/{code}. Sans configuration, le site continue de
+   fonctionner uniquement en local (IndexedDB), de façon transparente. */
+
+async function cloudGet(code){
+  if(typeof db === "undefined" || !db) return null;
+  try{
+    const snap = await db.collection("characters").doc(code).get();
+    return snap.exists ? snap.data().state : null;
+  }catch(e){
+    console.warn("Synchronisation cloud indisponible (lecture) :", e);
+    return null;
+  }
+}
+
+async function cloudSet(code, stateObj){
+  if(typeof db === "undefined" || !db) return false;
+  try{
+    await db.collection("characters").doc(code).set({
+      state: stateObj,
+      updatedAt: new Date().toISOString()
+    });
+    return true;
+  }catch(e){
+    console.warn("Synchronisation cloud indisponible (écriture) :", e);
+    return false;
+  }
+}
+
+function isCloudConfigured(){
+  return typeof db !== "undefined" && !!db;
+}
 const DB_NAME = "vikingSagaDB";
 const DB_STORE = "kv";
 const DB_VERSION = 1;
@@ -180,23 +266,31 @@ function defaultState(){
 }
 
 async function loadState(){
+  const code = getSaveCode();
   try{
-    let saved = await idbGet(STORAGE_KEY);
+    let saved = await cloudGet(code);
+    let fromCloud = !!saved;
+
+    if(!saved){
+      saved = await idbGet(STORAGE_KEY);
+    }
     if(!saved){
       // Migration silencieuse d'une éventuelle ancienne sauvegarde localStorage —
       // totalement transparente pour la personne : sa progression n'est pas perdue.
       const legacyRaw = window.localStorage.getItem(STORAGE_KEY);
       if(legacyRaw){
-        try{
-          saved = JSON.parse(legacyRaw);
-          await idbSet(STORAGE_KEY, saved);
-        }catch(e){ saved = null; }
+        try{ saved = JSON.parse(legacyRaw); }catch(e){ saved = null; }
       }
     }
+
     state = saved || defaultState();
     if(!state.records) state.records = {};
     if(state.firstLogDate === undefined) state.firstLogDate = null;
     if(state.totalXPEarned === undefined) state.totalXPEarned = 0;
+
+    // Garde le cache local et le cloud alignés l'un sur l'autre.
+    await idbSet(STORAGE_KEY, state);
+    if(!fromCloud) cloudSet(code, state);
   }catch(e){
     state = defaultState();
   }
@@ -204,6 +298,7 @@ async function loadState(){
 
 async function saveState(){
   await idbSet(STORAGE_KEY, state);
+  cloudSet(getSaveCode(), state); // en arrière-plan, transparent pour l'utilisateur
 }
 
 function xpNeededFor(level){ return 100 + (level - 1) * 60; }
@@ -369,11 +464,18 @@ function renderNav(activeKey){
   const links = NAV_PAGES.map(p =>
     `<a href="${p.page}" class="${p.key === activeKey ? 'active' : ''}">${p.label}</a>`
   ).join("");
+  const code = getSaveCode();
+  const cloudNote = isCloudConfigured() ? "synchronisé en ligne" : "local uniquement — configure assets/firebase-config.js pour synchroniser";
   return `
     <div class="topnav">
       <div class="topnav-inner">
         <a class="brand" href="index.html">⚔ SAGA DU VIKING</a>
         <div class="navlinks">${links}</div>
+        <div class="account-chip" title="${cloudNote}">
+          <span class="account-code">${code}</span>
+          <button class="chip-btn" onclick="copySaveCode()">Copier</button>
+          <button class="chip-btn" onclick="promptChangeSaveCode()">Changer</button>
+        </div>
       </div>
     </div>
   `;

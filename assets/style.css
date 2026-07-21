@@ -266,3 +266,20 @@ table.menu tr:last-child td{border-bottom:none;}
 }
 
 .exo-desc{font-size:13px; color:var(--parchment-dim); margin-top:6px; max-width:520px; font-style:italic; line-height:1.5;}
+
+/* ---------- ACCOUNT / SAVE CODE CHIP ---------- */
+.account-chip{
+  display:flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:11px;
+  background:var(--panel-raised); border:1px solid var(--iron); border-radius:20px; padding:5px 6px 5px 12px;
+  color:var(--parchment-dim); white-space:nowrap;
+}
+.account-chip .account-code{color:var(--gold-bright); font-weight:600;}
+.chip-btn{
+  font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:0.5px;
+  background:transparent; border:1px solid var(--iron-light); color:var(--parchment-dim);
+  padding:4px 8px; border-radius:14px; cursor:pointer; transition:all .15s ease;
+}
+.chip-btn:hover{border-color:var(--gold); color:var(--gold-bright);}
+@media (max-width:700px){
+  .account-chip{order:3; width:100%; justify-content:center; margin-top:8px;}
+}
