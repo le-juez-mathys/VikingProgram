@@ -43,14 +43,13 @@
    ========================================================= */
 
 const firebaseConfig = {
-  apiKey: "COLLE_TA_CLE_ICI",
-  authDomain: "TON-PROJET.firebaseapp.com",
-  projectId: "TON-PROJET",
-  storageBucket: "TON-PROJET.appspot.com",
-  messagingSenderId: "000000000000",
-  appId: "1:000000000000:web:xxxxxxxxxxxxxxxx"
+  apiKey: "AIzaSyAPyWeZNsqKjguEDqUsrsqGv0ow9LXVsIE",
+  authDomain: "vikingprogram-7e9fb.firebaseapp.com",
+  projectId: "vikingprogram-7e9fb",
+  storageBucket: "vikingprogram-7e9fb.firebasestorage.app",
+  messagingSenderId: "227578269615",
+  appId: "1:227578269615:web:0f9ac4a0a5ebfe4800695a"
 };
-
 let db;
 try{
   if(typeof firebase !== "undefined" && firebaseConfig.apiKey && firebaseConfig.apiKey !== "COLLE_TA_CLE_ICI"){

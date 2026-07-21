@@ -26,13 +26,20 @@ function waitForAuthReady(){
   });
 }
 
-async function signInWithGoogle(){
+async function signInWithProvider(providerName){
   if(!isCloudConfigured()){
     alert("La synchronisation n'est pas encore configurée (assets/firebase-config.js).");
     return;
   }
   try{
-    const provider = new firebase.auth.GoogleAuthProvider();
+    let provider;
+    if(providerName === "google"){
+      provider = new firebase.auth.GoogleAuthProvider();
+    } else if(providerName === "microsoft"){
+      provider = new firebase.auth.OAuthProvider("microsoft.com");
+    } else {
+      return;
+    }
     await firebase.auth().signInWithPopup(provider);
     location.reload();
   }catch(e){
@@ -40,6 +47,9 @@ async function signInWithGoogle(){
     alert("La connexion a échoué. Réessaie, ou vérifie que le domaine du site est bien autorisé dans Firebase (Authentication > Settings > Authorized domains).");
   }
 }
+
+function signInWithGoogle(){ return signInWithProvider("google"); }
+function signInWithMicrosoft(){ return signInWithProvider("microsoft"); }
 
 async function signOutUser(){
   if(confirm("Se déconnecter ? Ta progression reste sauvegardée en ligne, tu pourras te reconnecter avec le même compte à tout moment.")){
@@ -473,7 +483,8 @@ function renderNav(activeKey){
   } else {
     accountHtml = `
       <div class="account-chip" title="Connecte-toi pour synchroniser ta progression sur tous tes appareils">
-        <button class="chip-btn" onclick="signInWithGoogle()">Se connecter avec Google</button>
+        <button class="chip-btn" onclick="signInWithGoogle()">Google</button>
+        <button class="chip-btn" onclick="signInWithMicrosoft()">Microsoft</button>
       </div>`;
   }
 
