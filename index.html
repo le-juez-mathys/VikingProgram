@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tableau de bord — Saga du Viking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div id="nav-container"></div>
+
+<div class="hero">
+  <div class="eyebrow">Une saga personnelle · forgée pour toi</div>
+  <h1>TABLEAU DE BORD</h1>
+  <p class="sub">L'état de ta légende, en un coup d'œil. Choisis ta prochaine quête ci-dessous.</p>
+</div>
+
+<div class="wrap">
+
+  <div class="section">
+    <div class="section-head">
+      <div class="rune-mark">Feuille de personnage</div>
+      <h2>Ton état actuel</h2>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 260px; gap:16px; align-items:start;" id="sheet-grid">
+      <div class="sheet" id="full-sheet"></div>
+      <div class="avatar-panel" id="avatar-panel"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="rune-mark">Choisis ta quête</div>
+      <h2>Catégories d'entraînement</h2>
+      <p class="lede">Chaque carte mène à une page dédiée où tu détailles ta séance : poids soulevé, répétitions, exercices accomplis.</p>
+    </div>
+    <div class="cat-grid" id="cat-grid"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="rune-mark">Historique</div>
+      <h2>La chronique</h2>
+      <p class="lede">Toutes tes quêtes accomplies, gravées pour la postérité.</p>
+    </div>
+    <div class="chronicle-list" id="chronicle-list"></div>
+    <div style="margin-top:18px;">
+      <button class="btn secondary" onclick="resetCharacter()">Réinitialiser le personnage</button>
+    </div>
+  </div>
+
+</div>
+
+<footer>Saga du Viking · tes données restent dans ce navigateur (localStorage)</footer>
+
+<script src="assets/app.js"></script>
+<script>
+  initPage("index");
+  renderFullSheet("full-sheet");
+  renderAvatarWidget("avatar-panel");
+  renderDashboardCards("cat-grid");
+  renderChronicle("chronicle-list");
+</script>
+</body>
+</html>
