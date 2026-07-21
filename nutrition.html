@@ -77,6 +77,7 @@
       <label for="week-select" style="font-family:var(--font-mono); font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--gold);">Semaine affichée</label>
       <select id="week-select" style="max-width:260px;"></select>
       <button class="btn secondary" onclick="downloadShoppingList()">Télécharger la liste de courses ⤓</button>
+      <button class="btn secondary" onclick="downloadRecipes()">Télécharger les recettes ⤓</button>
     </div>
 
     <div style="overflow-x:auto;">
@@ -160,6 +161,12 @@
   function downloadShoppingList(){
     const text = generateShoppingListText(selectedWeek);
     const filename = "courses-" + WEEKLY_MENUS[selectedWeek].name.toLowerCase().replace(/\s+/g, "-") + ".txt";
+    downloadTextFile(filename, text);
+  }
+
+  function downloadRecipes(){
+    const text = generateRecipesText(selectedWeek);
+    const filename = "recettes-" + WEEKLY_MENUS[selectedWeek].name.toLowerCase().replace(/\s+/g, "-") + ".txt";
     downloadTextFile(filename, text);
   }
 

@@ -264,3 +264,5 @@ table.menu tr:last-child td{border-bottom:none;}
 @media (max-width: 700px){
   #sheet-grid{grid-template-columns:1fr !important;}
 }
+
+.exo-desc{font-size:13px; color:var(--parchment-dim); margin-top:6px; max-width:520px; font-style:italic; line-height:1.5;}
