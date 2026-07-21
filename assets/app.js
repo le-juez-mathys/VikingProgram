@@ -3,68 +3,62 @@
    ========================================================= */
 
 const STORAGE_KEY = "vikingSagaCharacter_v2";
-const CODE_KEY = "vikingSagaCode";
 
-/* ---------- Code de sauvegarde (identifiant de synchronisation) ----------
-   Ce code (ex: "loup-argent-482") permet de retrouver la même progression
-   sur un autre appareil ou navigateur. Il est stocké localement pour ne pas
-   avoir à le retaper à chaque visite sur le même appareil. */
+let currentUser = null;
 
-function generateSaveCode(){
-  const ADJ = ["argent","fer","brave","feu","glace","tonnerre","ombre","or","sang","givre"];
-  const NOUN = ["loup","ours","faucon","corbeau","dragon","serpent","aigle","sanglier","renard","lynx"];
-  const adj = ADJ[Math.floor(Math.random() * ADJ.length)];
-  const noun = NOUN[Math.floor(Math.random() * NOUN.length)];
-  const num = Math.floor(100 + Math.random() * 900);
-  return `${adj}-${noun}-${num}`;
+/* ---------- Connexion & synchronisation (Firebase Auth + Firestore) ----------
+   Une fois connecté avec Google sur un appareil, Firebase garde la session
+   ouverte automatiquement (comme n'importe quelle appli) : rien à retaper,
+   rien à copier. Se connecter avec le même compte Google sur un autre
+   appareil retrouve automatiquement la même progression. */
+
+function isCloudConfigured(){
+  return typeof firebase !== "undefined" && typeof db !== "undefined" && !!db;
 }
 
-function getSaveCode(){
-  let code = window.localStorage.getItem(CODE_KEY);
-  if(!code){
-    code = generateSaveCode();
-    window.localStorage.setItem(CODE_KEY, code);
+function waitForAuthReady(){
+  return new Promise(resolve => {
+    if(!isCloudConfigured()){ resolve(null); return; }
+    const unsubscribe = firebase.auth().onAuthStateChanged(user => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+}
+
+async function signInWithGoogle(){
+  if(!isCloudConfigured()){
+    alert("La synchronisation n'est pas encore configurée (assets/firebase-config.js).");
+    return;
   }
-  return code;
-}
-
-function setSaveCode(code){
-  const clean = code.trim().toLowerCase();
-  if(clean) window.localStorage.setItem(CODE_KEY, clean);
-}
-
-function copySaveCode(){
-  const code = getSaveCode();
-  if(navigator.clipboard){
-    navigator.clipboard.writeText(code).then(
-      () => showSimpleToast("Code copié ! Colle-le sur ton autre appareil."),
-      () => showSimpleToast(`Ton code : ${code}`)
-    );
-  } else {
-    showSimpleToast(`Ton code : ${code}`);
+  try{
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await firebase.auth().signInWithPopup(provider);
+    location.reload();
+  }catch(e){
+    console.error("Connexion impossible :", e);
+    alert("La connexion a échoué. Réessaie, ou vérifie que le domaine du site est bien autorisé dans Firebase (Authentication > Settings > Authorized domains).");
   }
 }
 
-async function promptChangeSaveCode(){
-  const input = window.prompt(
-    "Entre le code de sauvegarde affiché sur ton autre appareil pour retrouver ta progression ici :",
-    getSaveCode()
-  );
-  if(!input) return;
-  setSaveCode(input);
-  location.reload();
+async function signOutUser(){
+  if(confirm("Se déconnecter ? Ta progression reste sauvegardée en ligne, tu pourras te reconnecter avec le même compte à tout moment.")){
+    await firebase.auth().signOut();
+    location.reload();
+  }
 }
 
 /* ---------- Synchronisation cloud (Firestore) ----------
-   Si assets/firebase-config.js a été configuré, la variable globale `db`
-   existe et chaque sauvegarde locale est aussi poussée en ligne, sous le
-   document characters/{code}. Sans configuration, le site continue de
-   fonctionner uniquement en local (IndexedDB), de façon transparente. */
+   Chaque sauvegarde locale est aussi poussée en ligne, sous le document
+   characters/{uid}, où uid est l'identifiant unique du compte Google
+   connecté. Sans connexion (ou sans configuration Firebase), le site
+   continue de fonctionner uniquement en local (IndexedDB), de façon
+   transparente. */
 
-async function cloudGet(code){
-  if(typeof db === "undefined" || !db) return null;
+async function cloudGet(uid){
+  if(!isCloudConfigured()) return null;
   try{
-    const snap = await db.collection("characters").doc(code).get();
+    const snap = await db.collection("characters").doc(uid).get();
     return snap.exists ? snap.data().state : null;
   }catch(e){
     console.warn("Synchronisation cloud indisponible (lecture) :", e);
@@ -72,10 +66,10 @@ async function cloudGet(code){
   }
 }
 
-async function cloudSet(code, stateObj){
-  if(typeof db === "undefined" || !db) return false;
+async function cloudSet(uid, stateObj){
+  if(!isCloudConfigured()) return false;
   try{
-    await db.collection("characters").doc(code).set({
+    await db.collection("characters").doc(uid).set({
       state: stateObj,
       updatedAt: new Date().toISOString()
     });
@@ -84,10 +78,6 @@ async function cloudSet(code, stateObj){
     console.warn("Synchronisation cloud indisponible (écriture) :", e);
     return false;
   }
-}
-
-function isCloudConfigured(){
-  return typeof db !== "undefined" && !!db;
 }
 const DB_NAME = "vikingSagaDB";
 const DB_STORE = "kv";
@@ -266,10 +256,15 @@ function defaultState(){
 }
 
 async function loadState(){
-  const code = getSaveCode();
   try{
-    let saved = await cloudGet(code);
-    let fromCloud = !!saved;
+    currentUser = await waitForAuthReady();
+
+    let saved = null;
+    let fromCloud = false;
+    if(currentUser){
+      saved = await cloudGet(currentUser.uid);
+      fromCloud = !!saved;
+    }
 
     if(!saved){
       saved = await idbGet(STORAGE_KEY);
@@ -290,7 +285,7 @@ async function loadState(){
 
     // Garde le cache local et le cloud alignés l'un sur l'autre.
     await idbSet(STORAGE_KEY, state);
-    if(!fromCloud) cloudSet(code, state);
+    if(currentUser && !fromCloud) cloudSet(currentUser.uid, state);
   }catch(e){
     state = defaultState();
   }
@@ -298,7 +293,7 @@ async function loadState(){
 
 async function saveState(){
   await idbSet(STORAGE_KEY, state);
-  cloudSet(getSaveCode(), state); // en arrière-plan, transparent pour l'utilisateur
+  if(currentUser) cloudSet(currentUser.uid, state); // en arrière-plan, transparent pour l'utilisateur
 }
 
 function xpNeededFor(level){ return 100 + (level - 1) * 60; }
@@ -464,18 +459,30 @@ function renderNav(activeKey){
   const links = NAV_PAGES.map(p =>
     `<a href="${p.page}" class="${p.key === activeKey ? 'active' : ''}">${p.label}</a>`
   ).join("");
-  const code = getSaveCode();
-  const cloudNote = isCloudConfigured() ? "synchronisé en ligne" : "local uniquement — configure assets/firebase-config.js pour synchroniser";
+
+  let accountHtml;
+  if(!isCloudConfigured()){
+    accountHtml = `<div class="account-chip" title="Configure assets/firebase-config.js pour activer la synchronisation">Local uniquement</div>`;
+  } else if(currentUser){
+    const name = currentUser.displayName || currentUser.email || "Guerrier connecté";
+    accountHtml = `
+      <div class="account-chip" title="Synchronisé en ligne avec ce compte">
+        <span class="account-code">${name}</span>
+        <button class="chip-btn" onclick="signOutUser()">Déconnexion</button>
+      </div>`;
+  } else {
+    accountHtml = `
+      <div class="account-chip" title="Connecte-toi pour synchroniser ta progression sur tous tes appareils">
+        <button class="chip-btn" onclick="signInWithGoogle()">Se connecter avec Google</button>
+      </div>`;
+  }
+
   return `
     <div class="topnav">
       <div class="topnav-inner">
         <a class="brand" href="index.html">⚔ SAGA DU VIKING</a>
         <div class="navlinks">${links}</div>
-        <div class="account-chip" title="${cloudNote}">
-          <span class="account-code">${code}</span>
-          <button class="chip-btn" onclick="copySaveCode()">Copier</button>
-          <button class="chip-btn" onclick="promptChangeSaveCode()">Changer</button>
-        </div>
+        ${accountHtml}
       </div>
     </div>
   `;
