@@ -261,7 +261,8 @@ function defaultState(){
     firstLogDate: null,
     totalXPEarned: 0,
     records: {},
-    log: []
+    log: [],
+    updatedAt: new Date().toISOString()
   };
 }
 
@@ -269,16 +270,27 @@ async function loadState(){
   try{
     currentUser = await waitForAuthReady();
 
-    let saved = null;
-    let fromCloud = false;
+    const local = await idbGet(STORAGE_KEY);
+    let cloud = null;
     if(currentUser){
-      saved = await cloudGet(currentUser.uid);
-      fromCloud = !!saved;
+      cloud = await cloudGet(currentUser.uid);
     }
 
-    if(!saved){
-      saved = await idbGet(STORAGE_KEY);
+    let saved = null;
+    if(cloud && local){
+      // Ni l'un ni l'autre n'est automatiquement prioritaire : on garde la
+      // version la plus récente pour éviter qu'une écriture cloud en échec
+      // silencieux (ex: juste après une réinitialisation) n'écrase une
+      // version locale plus fraîche.
+      const cloudTime = cloud.updatedAt ? new Date(cloud.updatedAt).getTime() : 0;
+      const localTime = local.updatedAt ? new Date(local.updatedAt).getTime() : 0;
+      saved = cloudTime >= localTime ? cloud : local;
+    } else if(cloud){
+      saved = cloud;
+    } else if(local){
+      saved = local;
     }
+
     if(!saved){
       // Migration silencieuse d'une éventuelle ancienne sauvegarde localStorage —
       // totalement transparente pour la personne : sa progression n'est pas perdue.
@@ -292,16 +304,19 @@ async function loadState(){
     if(!state.records) state.records = {};
     if(state.firstLogDate === undefined) state.firstLogDate = null;
     if(state.totalXPEarned === undefined) state.totalXPEarned = 0;
+    if(!state.updatedAt) state.updatedAt = new Date().toISOString();
 
-    // Garde le cache local et le cloud alignés l'un sur l'autre.
+    // Garde le cache local et le cloud alignés l'un sur l'autre, quelle que
+    // soit la source retenue ci-dessus.
     await idbSet(STORAGE_KEY, state);
-    if(currentUser && !fromCloud) cloudSet(currentUser.uid, state);
+    if(currentUser) cloudSet(currentUser.uid, state);
   }catch(e){
     state = defaultState();
   }
 }
 
 async function saveState(){
+  state.updatedAt = new Date().toISOString();
   await idbSet(STORAGE_KEY, state);
   if(currentUser) cloudSet(currentUser.uid, state); // en arrière-plan, transparent pour l'utilisateur
 }
