@@ -202,7 +202,10 @@ const PROGRAM = {
   cardio: {
     title: "Cardio & Abdos",
     exos: [
-      ["Cardio au choix (Tapis, Vélo, Rameur ou Escaliers) — 30-40 min", "1", "30-40 min", "Choisis un Tapis de course, un Vélo (droit ou assis), un Rameur ou les Escaliers (StairMaster), à intensité modérée et continue. C'est le principal levier pour brûler des graisses et faire fondre le tour de ventre.", "treadmill", []],
+      ["Tapis de course / Course à pied", "1", "temps + distance", "Course ou marche rapide sur tapis (ou en extérieur), à intensité modérée et continue. C'est le principal levier pour brûler des graisses et faire fondre le tour de ventre.", "treadmill", [], "distance"],
+      ["Vélo (spinning / droit ou assis)", "1", "temps + difficulté", "Vélo classique ou avec dossier, résistance réglée selon ta difficulté. Cardio sans impact articulaire, idéal en complément ou en récupération active intense.", "bike", [], "difficulty"],
+      ["Rameur", "1", "temps + difficulté", "Sollicite l'ensemble du corps en un seul mouvement. Règle la résistance de la machine selon ta difficulté du jour.", "bike", [], "difficulty"],
+      ["Escaliers (StairMaster / ClimbMill)", "1", "temps + difficulté", "Simulateur d'escaliers pour les jambes et le cardio. Règle le niveau/vitesse de la machine selon ta difficulté du jour.", "stairmaster", [], "difficulty"],
       ["Abdominal Crunch (machine guidée)", "3", "15-20", "Assis dans la machine, tu enroules le buste vers les genoux contre la résistance en contractant les abdominaux. Version guidée et sécurisée du crunch classique.", "abdominal-crunch", ["abdos"]],
       ["Relevé de jambes suspendu", "3", "12-15", "Suspendu à la barre de tirage ou aux appuis dédiés, tu remontes les jambes tendues ou fléchies vers la poitrine. Cible surtout le bas des abdominaux.", "cable-pulley", ["abdos"]],
       ["Back Extension (machine)", "3", "12-15", "Allongé face contre le support incliné, chevilles calées, tu remontes le buste jusqu'à l'alignement du corps. Renforce le bas du dos et les lombaires.", "back-extension", ["dos"]],
@@ -271,6 +274,9 @@ function defaultState(){
     groceryList: [],
     stock: {},
     supplements: defaultSupplementsState(),
+    profile: { poids: null, taille: null, age: null, activite: 1.45, deficit: 500, sexe: "femme" },
+    weightGoal: { poidsAPerdre: null },
+    dailyLog: defaultDailyLogState(),
     log: [],
     updatedAt: new Date().toISOString()
   };
@@ -315,6 +321,10 @@ async function loadState(){
     if(!state.groceryList) state.groceryList = [];
     if(!state.stock) state.stock = {};
     if(!state.supplements) state.supplements = defaultSupplementsState();
+    if(!state.profile) state.profile = { poids: null, taille: null, age: null, activite: 1.45, deficit: 500, sexe: "femme" };
+    if(!state.profile.sexe) state.profile.sexe = "femme";
+    if(!state.weightGoal) state.weightGoal = { poidsAPerdre: null };
+    if(!state.dailyLog) state.dailyLog = defaultDailyLogState();
     if(state.firstLogDate === undefined) state.firstLogDate = null;
     if(state.totalXPEarned === undefined) state.totalXPEarned = 0;
     if(!state.updatedAt) state.updatedAt = new Date().toISOString();
@@ -407,6 +417,62 @@ function applyXP(xp){
 
 /* ---------- Log générique d'une quête d'exercices ---------- */
 // exerciseEntries: [{ slug, name, weight (kg|null), reps (int|null), done (bool) }]
+/* ---------- Cardio : XP basé sur le temps + la distance/difficulté ----------
+   Utilise une estimation calorique (formule MET standard ACSM) à partir du
+   poids réellement enregistré dans le profil — plus tu es rapide/loin/dur,
+   plus l'effort (et donc l'XP) grimpe. Exemple de référence : 15 min à 6km/h
+   pour ~75kg donne environ 30-35 XP. */
+function metForSpeed(speedKmh){
+  if(speedKmh <= 4) return 3;
+  if(speedKmh <= 6) return 6;
+  if(speedKmh <= 8) return 8;
+  if(speedKmh <= 10) return 9.8;
+  if(speedKmh <= 12) return 11;
+  return 12.5;
+}
+
+function metForDifficulty(difficulty){
+  const d = Math.max(1, Math.min(10, difficulty || 1));
+  return 3 + d;
+}
+
+function profileWeightKg(){
+  return (state.profile && state.profile.poids) ? state.profile.poids : 75;
+}
+
+function saveProfile(poids, taille, age, activite, deficit, sexe){
+  state.profile = { poids, taille, age, activite, deficit, sexe: sexe || (state.profile && state.profile.sexe) || "femme" };
+  saveState();
+}
+
+function saveWeightGoal(poidsAPerdre){
+  state.weightGoal = { poidsAPerdre };
+  saveState();
+}
+
+function resetWeightGoal(){
+  state.weightGoal = { poidsAPerdre: null };
+  saveState();
+}
+
+function caloriesFromMET(met, timeMin){
+  return met * 3.5 * profileWeightKg() / 200 * (timeMin || 0);
+}
+
+function cardioDistanceXP(timeMin, distanceKm){
+  timeMin = Math.max(0, timeMin || 0);
+  distanceKm = Math.max(0, distanceKm || 0);
+  const speedKmh = timeMin > 0 ? distanceKm / (timeMin / 60) : 0;
+  const kcal = caloriesFromMET(metForSpeed(speedKmh), timeMin);
+  return Math.max(0, Math.round(kcal / 3.5));
+}
+
+function cardioDifficultyXP(timeMin, difficulty){
+  timeMin = Math.max(0, timeMin || 0);
+  const kcal = caloriesFromMET(metForDifficulty(difficulty), timeMin);
+  return Math.max(0, Math.round(kcal / 3.5));
+}
+
 function logCategorySession(categoryKey, exerciseEntries, effort){
   const total = exerciseEntries.length;
   const doneCount = exerciseEntries.filter(e => e.done).length;
@@ -414,19 +480,40 @@ function logCategorySession(categoryKey, exerciseEntries, effort){
   const meta = CATEGORY_META[categoryKey];
 
   let prCount = 0;
+  let cardioBonusXP = 0;
   exerciseEntries.forEach(e => {
-    if(!e.done || !e.weight) return;
-    const rec = state.records[e.slug];
-    if(!rec || e.weight > rec.weight){
-      state.records[e.slug] = { name: e.name, weight: e.weight, reps: e.reps || null, date: new Date().toISOString() };
-      prCount++;
+    if(!e.done) return;
+    if(e.metricType === "distance"){
+      if(!e.time || !e.distance) return;
+      cardioBonusXP += cardioDistanceXP(e.time, e.distance);
+      const rec = state.records[e.slug];
+      if(!rec || e.distance > rec.distance){
+        state.records[e.slug] = { name: e.name, distance: e.distance, time: e.time, date: new Date().toISOString() };
+        prCount++;
+      }
+    } else if(e.metricType === "difficulty"){
+      if(!e.time || !e.difficulty) return;
+      cardioBonusXP += cardioDifficultyXP(e.time, e.difficulty);
+      const rec = state.records[e.slug];
+      const score = e.time * e.difficulty;
+      if(!rec || score > (rec.time * rec.difficulty)){
+        state.records[e.slug] = { name: e.name, time: e.time, difficulty: e.difficulty, date: new Date().toISOString() };
+        prCount++;
+      }
+    } else {
+      if(!e.weight) return;
+      const rec = state.records[e.slug];
+      if(!rec || e.weight > rec.weight){
+        state.records[e.slug] = { name: e.name, weight: e.weight, reps: e.reps || null, date: new Date().toISOString() };
+        prCount++;
+      }
     }
   });
 
   const baseXP = 20;
   const complMult = completionRatio >= 0.9 ? 1.5 : completionRatio >= 0.5 ? 1.15 : 0.7;
   const effortMult = effort === 3 ? 1.3 : effort === 2 ? 1.1 : 1;
-  const xpGain = Math.round(baseXP * complMult * effortMult) + prCount * 8;
+  const xpGain = Math.round(baseXP * complMult * effortMult) + prCount * 8 + cardioBonusXP;
 
   const gains = statGainsFor(categoryKey);
   Object.keys(gains).forEach(k => {
@@ -733,10 +820,14 @@ function showSimpleToast(msg){
 function buildExerciseInputs(containerId, categoryKey){
   const container = document.getElementById(containerId);
   const program = PROGRAM[categoryKey];
-  container.innerHTML = program.exos.map(([name, sets, reps, desc, machine, zones]) => {
+  container.innerHTML = program.exos.map(([name, sets, reps, desc, machine, zones, metricType]) => {
     const slug = categoryKey + "__" + slugify(name);
     const rec = state.records[slug];
-    const prText = rec ? `Record : ${rec.weight}kg${rec.reps ? ' x '+rec.reps : ''}` : "Pas encore de record";
+    const prText = metricType === "distance"
+      ? (rec ? `Record : ${rec.distance}km en ${rec.time}min` : "Pas encore de record")
+      : metricType === "difficulty"
+        ? (rec ? `Record : ${rec.time}min à difficulté ${rec.difficulty}` : "Pas encore de record")
+        : (rec ? `Record : ${rec.weight}kg${rec.reps ? ' x '+rec.reps : ''}` : "Pas encore de record");
     const zoneLabels = (zones || []).map(z => ZONE_EXERCISES[z] ? ZONE_EXERCISES[z].label : z).join(" · ");
     const mediaHtml = (machine || (zones && zones.length)) ? `
       <div class="exo-media">
@@ -751,6 +842,52 @@ function buildExerciseInputs(containerId, categoryKey){
             <span>Zone travaillée :<br>${zoneLabels}</span>
           </div>` : ""}
       </div>` : "";
+
+    let inputsHtml;
+    if(metricType === "distance"){
+      inputsHtml = `
+        <div class="field">
+          <label>Temps (min)</label>
+          <input type="number" min="0" step="1" class="exo-time" placeholder="ex: 30">
+        </div>
+        <div class="field">
+          <label>Distance (km)</label>
+          <input type="number" min="0" step="0.1" class="exo-distance" placeholder="ex: 5">
+        </div>
+        <div class="exo-done">
+          <input type="checkbox" class="exo-check" id="chk-${slug}">
+          <label for="chk-${slug}">Faite</label>
+        </div>`;
+    } else if(metricType === "difficulty"){
+      inputsHtml = `
+        <div class="field">
+          <label>Temps (min)</label>
+          <input type="number" min="0" step="1" class="exo-time" placeholder="ex: 20">
+        </div>
+        <div class="field">
+          <label>Difficulté (1-10)</label>
+          <input type="number" min="1" max="10" step="1" class="exo-difficulty" placeholder="ex: 6">
+        </div>
+        <div class="exo-done">
+          <input type="checkbox" class="exo-check" id="chk-${slug}">
+          <label for="chk-${slug}">Faite</label>
+        </div>`;
+    } else {
+      inputsHtml = `
+        <div class="field">
+          <label>Poids (kg)</label>
+          <input type="number" min="0" step="0.5" class="exo-weight" placeholder="ex: 40">
+        </div>
+        <div class="field">
+          <label>Reps réalisées</label>
+          <input type="number" min="0" step="1" class="exo-reps" placeholder="ex: 10">
+        </div>
+        <div class="exo-done">
+          <input type="checkbox" class="exo-check" id="chk-${slug}">
+          <label for="chk-${slug}">Faite</label>
+        </div>`;
+    }
+
     return `
       <div class="exo-card" data-slug="${slug}">
         <div class="exo-head">
@@ -763,18 +900,7 @@ function buildExerciseInputs(containerId, categoryKey){
         </div>
         ${mediaHtml}
         <div class="exo-inputs">
-          <div class="field">
-            <label>Poids (kg)</label>
-            <input type="number" min="0" step="0.5" class="exo-weight" placeholder="ex: 40">
-          </div>
-          <div class="field">
-            <label>Reps réalisées</label>
-            <input type="number" min="0" step="1" class="exo-reps" placeholder="ex: 10">
-          </div>
-          <div class="exo-done">
-            <input type="checkbox" class="exo-check" id="chk-${slug}">
-            <label for="chk-${slug}">Faite</label>
-          </div>
+          ${inputsHtml}
         </div>
       </div>
     `;
@@ -786,12 +912,22 @@ function collectExerciseEntries(containerId, categoryKey){
   const cards = document.querySelectorAll(`#${containerId} .exo-card`);
   const entries = [];
   cards.forEach((card, i) => {
-    const name = program.exos[i][0];
+    const [name, , , , , , metricType] = program.exos[i];
     const slug = card.getAttribute("data-slug");
-    const weight = parseFloat(card.querySelector(".exo-weight").value) || null;
-    const reps = parseInt(card.querySelector(".exo-reps").value, 10) || null;
     const done = card.querySelector(".exo-check").checked;
-    entries.push({ slug, name, weight, reps, done });
+    if(metricType === "distance"){
+      const time = parseFloat(card.querySelector(".exo-time").value) || null;
+      const distance = parseFloat(card.querySelector(".exo-distance").value) || null;
+      entries.push({ slug, name, metricType, time, distance, done });
+    } else if(metricType === "difficulty"){
+      const time = parseFloat(card.querySelector(".exo-time").value) || null;
+      const difficulty = parseFloat(card.querySelector(".exo-difficulty").value) || null;
+      entries.push({ slug, name, metricType, time, difficulty, done });
+    } else {
+      const weight = parseFloat(card.querySelector(".exo-weight").value) || null;
+      const reps = parseInt(card.querySelector(".exo-reps").value, 10) || null;
+      entries.push({ slug, name, weight, reps, done });
+    }
   });
   return entries;
 }
@@ -962,82 +1098,82 @@ const INGREDIENT_INFO = {
    ========================================================= */
 
 const MEAL_PROTEINS = [
-  { key:"poulet",       name:"Poulet (blanc / filet)",     cat:"Viande",         qty:150, unit:"g" },
-  { key:"dinde",        name:"Dinde (escalope)",           cat:"Viande",         qty:150, unit:"g" },
-  { key:"boeuf-hache",  name:"Bœuf haché 5%",              cat:"Viande",         qty:150, unit:"g" },
-  { key:"boeuf-steak",  name:"Steak de bœuf",              cat:"Viande",         qty:150, unit:"g" },
-  { key:"porc",         name:"Filet mignon de porc",       cat:"Viande",         qty:150, unit:"g" },
-  { key:"saumon",       name:"Saumon",                     cat:"Poisson",        qty:150, unit:"g" },
-  { key:"cabillaud",    name:"Cabillaud",                  cat:"Poisson",        qty:150, unit:"g" },
-  { key:"thon",         name:"Thon (frais ou en boîte)",   cat:"Poisson",        qty:150, unit:"g" },
-  { key:"truite",       name:"Truite",                     cat:"Poisson",        qty:150, unit:"g" },
-  { key:"crevettes",    name:"Crevettes",                  cat:"Poisson",        qty:150, unit:"g" },
-  { key:"maquereau",    name:"Maquereau",                  cat:"Poisson",        qty:150, unit:"g" },
-  { key:"oeufs",        name:"Œufs",                       cat:"Œuf / Végétal",  qty:3,   unit:"unités" },
-  { key:"tofu",         name:"Tofu",                       cat:"Œuf / Végétal",  qty:150, unit:"g" },
-  { key:"pois-chiches", name:"Pois chiches (cuits)",       cat:"Œuf / Végétal",  qty:150, unit:"g" },
-  { key:"lentilles",    name:"Lentilles (cuites)",         cat:"Œuf / Végétal",  qty:150, unit:"g" },
+  { key:"poulet",       name:"Poulet (blanc / filet)",     cat:"Viande",         qty:150, unit:"g",      kcal:165 },
+  { key:"dinde",        name:"Dinde (escalope)",           cat:"Viande",         qty:150, unit:"g",      kcal:165 },
+  { key:"boeuf-hache",  name:"Bœuf haché 5%",              cat:"Viande",         qty:150, unit:"g",      kcal:215 },
+  { key:"boeuf-steak",  name:"Steak de bœuf",              cat:"Viande",         qty:150, unit:"g",      kcal:250 },
+  { key:"porc",         name:"Filet mignon de porc",       cat:"Viande",         qty:150, unit:"g",      kcal:180 },
+  { key:"saumon",       name:"Saumon",                     cat:"Poisson",        qty:150, unit:"g",      kcal:280 },
+  { key:"cabillaud",    name:"Cabillaud",                  cat:"Poisson",        qty:150, unit:"g",      kcal:120 },
+  { key:"thon",         name:"Thon (frais ou en boîte)",   cat:"Poisson",        qty:150, unit:"g",      kcal:185 },
+  { key:"truite",       name:"Truite",                     cat:"Poisson",        qty:150, unit:"g",      kcal:200 },
+  { key:"crevettes",    name:"Crevettes",                  cat:"Poisson",        qty:150, unit:"g",      kcal:135 },
+  { key:"maquereau",    name:"Maquereau",                  cat:"Poisson",        qty:150, unit:"g",      kcal:280 },
+  { key:"oeufs",        name:"Œufs",                       cat:"Œuf / Végétal",  qty:3,   unit:"unités", kcal:210 },
+  { key:"tofu",         name:"Tofu",                       cat:"Œuf / Végétal",  qty:150, unit:"g",      kcal:120 },
+  { key:"pois-chiches", name:"Pois chiches (cuits)",       cat:"Œuf / Végétal",  qty:150, unit:"g",      kcal:200 },
+  { key:"lentilles",    name:"Lentilles (cuites)",         cat:"Œuf / Végétal",  qty:150, unit:"g",      kcal:170 },
 ];
 
 const MEAL_STARCHES = [
-  { name:"Riz complet",        qty:60,  unit:"g (cru)" },
-  { name:"Riz basmati",        qty:60,  unit:"g (cru)" },
-  { name:"Quinoa",             qty:60,  unit:"g (cru)" },
-  { name:"Pâtes complètes",    qty:70,  unit:"g (crues)" },
-  { name:"Patate douce",       qty:200, unit:"g" },
-  { name:"Pomme de terre",     qty:200, unit:"g" },
-  { name:"Semoule complète",   qty:60,  unit:"g (crue)" },
-  { name:"Boulgour",           qty:60,  unit:"g (cru)" },
-  { name:"Pain complet",       qty:2,   unit:"tranches" },
+  { name:"Riz complet",        qty:60,  unit:"g (cru)",  kcal:215 },
+  { name:"Riz basmati",        qty:60,  unit:"g (cru)",  kcal:215 },
+  { name:"Quinoa",             qty:60,  unit:"g (cru)",  kcal:220 },
+  { name:"Pâtes complètes",    qty:70,  unit:"g (crues)",kcal:245 },
+  { name:"Patate douce",       qty:200, unit:"g",        kcal:180 },
+  { name:"Pomme de terre",     qty:200, unit:"g",        kcal:160 },
+  { name:"Semoule complète",   qty:60,  unit:"g (crue)", kcal:210 },
+  { name:"Boulgour",           qty:60,  unit:"g (cru)",  kcal:205 },
+  { name:"Pain complet",       qty:2,   unit:"tranches", kcal:150 },
 ];
 
 const MEAL_VEGETABLES = [
-  { name:"Brocolis",              qty:150, unit:"g" },
-  { name:"Haricots verts",        qty:150, unit:"g" },
-  { name:"Épinards",              qty:150, unit:"g" },
-  { name:"Courgettes",            qty:200, unit:"g" },
-  { name:"Poivrons",              qty:150, unit:"g" },
-  { name:"Carottes",              qty:150, unit:"g" },
-  { name:"Salade verte",          qty:80,  unit:"g" },
-  { name:"Champignons",           qty:150, unit:"g" },
-  { name:"Asperges",              qty:150, unit:"g" },
-  { name:"Ratatouille (mélange)", qty:200, unit:"g" },
-  { name:"Tomates cerises",       qty:100, unit:"g" },
+  { name:"Brocolis",              qty:150, unit:"g", kcal:52 },
+  { name:"Haricots verts",        qty:150, unit:"g", kcal:47 },
+  { name:"Épinards",              qty:150, unit:"g", kcal:35 },
+  { name:"Courgettes",            qty:200, unit:"g", kcal:34 },
+  { name:"Poivrons",              qty:150, unit:"g", kcal:38 },
+  { name:"Carottes",              qty:150, unit:"g", kcal:62 },
+  { name:"Salade verte",          qty:80,  unit:"g", kcal:12 },
+  { name:"Champignons",           qty:150, unit:"g", kcal:33 },
+  { name:"Asperges",              qty:150, unit:"g", kcal:30 },
+  { name:"Ratatouille (mélange)", qty:200, unit:"g", kcal:100 },
+  { name:"Tomates cerises",       qty:100, unit:"g", kcal:18 },
 ];
 
 // Assaisonnements : huile d'olive et skyr en base (comme demandé), + quelques
 // alliés classiques d'une alimentation riche en protéines et peu transformée.
 const MEAL_SEASONINGS = [
-  { name:"Huile d'olive",             qty:1,   unit:"c. à soupe", cat:"Épicerie" },
-  { name:"Skyr nature (en sauce)",    qty:50,  unit:"g",          cat:"Produits laitiers" },
-  { name:"Citron (jus)",              qty:0.5, unit:"unité",      cat:"Fruits & légumes" },
-  { name:"Vinaigre balsamique",       qty:1,   unit:"c. à soupe", cat:"Épicerie" },
-  { name:"Moutarde",                  qty:1,   unit:"c. à café",  cat:"Épicerie" },
-  { name:"Herbes de Provence",        qty:1,   unit:"pincée",     cat:"Épicerie" },
-  { name:"Ail + persil",              qty:1,   unit:"gousse",     cat:"Fruits & légumes" },
-  { name:"Sauce soja légère",         qty:1,   unit:"c. à soupe", cat:"Épicerie" },
-  { name:"Épices (paprika / cumin)",  qty:1,   unit:"pincée",     cat:"Épicerie" },
+  { name:"Huile d'olive",             qty:1,   unit:"c. à soupe", cat:"Épicerie",         kcal:120 },
+  { name:"Skyr nature (en sauce)",    qty:50,  unit:"g",          cat:"Produits laitiers", kcal:30 },
+  { name:"Citron (jus)",              qty:0.5, unit:"unité",      cat:"Fruits & légumes",  kcal:5 },
+  { name:"Vinaigre balsamique",       qty:1,   unit:"c. à soupe", cat:"Épicerie",         kcal:15 },
+  { name:"Moutarde",                  qty:1,   unit:"c. à café",  cat:"Épicerie",         kcal:8 },
+  { name:"Herbes de Provence",        qty:1,   unit:"pincée",     cat:"Épicerie",         kcal:2 },
+  { name:"Ail + persil",              qty:1,   unit:"gousse",     cat:"Fruits & légumes",  kcal:5 },
+  { name:"Sauce soja légère",         qty:1,   unit:"c. à soupe", cat:"Épicerie",         kcal:10 },
+  { name:"Épices (paprika / cumin)",  qty:1,   unit:"pincée",     cat:"Épicerie",         kcal:3 },
 ];
 
 // Petit-déjeuner : une base protéinée + un accompagnement, choisis manuellement.
 const BREAKFAST_BASES = [
-  { name:"Skyr nature",                                  qty:200, unit:"g",       cat:"Produits laitiers" },
-  { name:"Fromage blanc 0%",                             qty:200, unit:"g",       cat:"Produits laitiers" },
-  { name:"Yaourt grec",                                  qty:200, unit:"g",       cat:"Produits laitiers" },
-  { name:"Cottage cheese",                               qty:200, unit:"g",       cat:"Produits laitiers" },
-  { name:"Pancakes protéinés (œufs + flocons + skyr)",   qty:3,   unit:"pancakes",cat:"Protéines" },
-  { name:"Œufs brouillés",                               qty:3,   unit:"unités",  cat:"Protéines" },
+  { name:"Skyr nature",                                  qty:200, unit:"g",       cat:"Produits laitiers", kcal:120 },
+  { name:"Fromage blanc 0%",                             qty:200, unit:"g",       cat:"Produits laitiers", kcal:90 },
+  { name:"Yaourt grec",                                  qty:200, unit:"g",       cat:"Produits laitiers", kcal:200 },
+  { name:"Cottage cheese",                               qty:200, unit:"g",       cat:"Produits laitiers", kcal:200 },
+  { name:"Pancakes protéinés (œufs + flocons + skyr)",   qty:3,   unit:"pancakes",cat:"Protéines",         kcal:330 },
+  { name:"Œufs brouillés",                               qty:3,   unit:"unités",  cat:"Protéines",         kcal:240 },
 ];
 
 const BREAKFAST_TOPPINGS = [
-  { name:"Flocons d'avoine",       qty:40,  unit:"g",          cat:"Épicerie" },
-  { name:"Granola",                qty:30,  unit:"g",          cat:"Épicerie" },
-  { name:"Fruits rouges",          qty:100, unit:"g",          cat:"Fruits & légumes" },
-  { name:"Myrtilles",              qty:80,  unit:"g",          cat:"Fruits & légumes" },
-  { name:"Banane",                 qty:1,   unit:"unité",      cat:"Fruits & légumes" },
-  { name:"Miel",                   qty:1,   unit:"c. à café",  cat:"Épicerie" },
-  { name:"Cannelle",               qty:1,   unit:"pincée",     cat:"Épicerie" },
-  { name:"Beurre de cacahuète",    qty:1,   unit:"c. à soupe", cat:"Épicerie" },
+  { name:"Flocons d'avoine",       qty:40,  unit:"g",          cat:"Épicerie",         kcal:150 },
+  { name:"Granola",                qty:30,  unit:"g",          cat:"Épicerie",         kcal:135 },
+  { name:"Fruits rouges",          qty:100, unit:"g",          cat:"Fruits & légumes",  kcal:50 },
+  { name:"Myrtilles",              qty:80,  unit:"g",          cat:"Fruits & légumes",  kcal:45 },
+  { name:"Banane",                 qty:1,   unit:"unité",      cat:"Fruits & légumes",  kcal:105 },
+  { name:"Miel",                   qty:1,   unit:"c. à café",  cat:"Épicerie",         kcal:21 },
+  { name:"Cannelle",               qty:1,   unit:"pincée",     cat:"Épicerie",         kcal:2 },
+  { name:"Beurre de cacahuète",    qty:1,   unit:"c. à soupe", cat:"Épicerie",         kcal:95 },
 ];
 
 function pickRandom(arr, excludeName){
@@ -1117,12 +1253,12 @@ function downloadGroceryList(){
 
 function buildFoodReference(){
   const ref = {};
-  MEAL_PROTEINS.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: "Protéines" });
-  MEAL_STARCHES.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: "Féculents" });
-  MEAL_VEGETABLES.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: "Fruits & légumes" });
-  MEAL_SEASONINGS.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: p.cat || "Épicerie" });
-  BREAKFAST_BASES.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: p.cat || "Protéines" });
-  BREAKFAST_TOPPINGS.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: p.cat || "Épicerie" });
+  MEAL_PROTEINS.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: "Protéines", kcal: p.kcal });
+  MEAL_STARCHES.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: "Féculents", kcal: p.kcal });
+  MEAL_VEGETABLES.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: "Fruits & légumes", kcal: p.kcal });
+  MEAL_SEASONINGS.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: p.cat || "Épicerie", kcal: p.kcal });
+  BREAKFAST_BASES.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: p.cat || "Protéines", kcal: p.kcal });
+  BREAKFAST_TOPPINGS.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: p.cat || "Épicerie", kcal: p.kcal });
   return ref;
 }
 const FOOD_REFERENCE = buildFoodReference();
@@ -1252,6 +1388,51 @@ function supplementsTotals(){
     proteinTotal: Math.round(s.shakeCount * s.shakeProtein + s.barCount * s.barProtein),
     caloriesTotal: Math.round(s.shakeCount * s.shakeCalories + s.barCount * s.barCalories),
   };
+}
+
+/* =========================================================
+   JOURNAL CALORIQUE DU JOUR — chaque repas "mangé" (petit-déj
+   ou repas composé) vient s'ajouter ici avec ses calories
+   estimées, pour suivre le total du jour face à l'objectif
+   calculé plus haut. Remise à zéro automatique chaque jour.
+   ========================================================= */
+
+function defaultDailyLogState(){
+  return { date: todayStr(), entries: [] };
+}
+
+function ensureDailyLogToday(){
+  if(!state.dailyLog) state.dailyLog = defaultDailyLogState();
+  if(state.dailyLog.date !== todayStr()){
+    state.dailyLog = defaultDailyLogState();
+  }
+}
+
+function kcalForItem(name, qty){
+  const ref = FOOD_REFERENCE[name];
+  if(!ref || !ref.kcal || !ref.qty) return 0;
+  return Math.round((ref.kcal / ref.qty) * qty);
+}
+
+function logMealCalories(label, items){
+  ensureDailyLogToday();
+  const detail = items.map(it => ({ name: it.name, qty: it.qty, unit: it.unit, kcal: kcalForItem(it.name, it.qty) }));
+  const kcal = detail.reduce((sum, it) => sum + it.kcal, 0);
+  state.dailyLog.entries.push({ label, items: detail, kcal, time: new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }) });
+  saveState();
+  return kcal;
+}
+
+function removeDailyLogEntry(index){
+  ensureDailyLogToday();
+  state.dailyLog.entries.splice(index, 1);
+  saveState();
+}
+
+function dailyLogTotals(){
+  ensureDailyLogToday();
+  const kcalTotal = state.dailyLog.entries.reduce((sum, e) => sum + e.kcal, 0);
+  return { entries: state.dailyLog.entries, kcalTotal };
 }
 
 const WEEKLY_MENUS = [

@@ -33,8 +33,15 @@
 
     <div class="altar" style="margin-bottom:28px;">
       <h3 style="font-family:var(--font-display); color:var(--gold-bright); margin-bottom:14px; font-size:16px;">✨ Calculateur personnalisé</h3>
-      <div class="lede" style="margin-top:0; margin-bottom:16px;">Renseigne tes chiffres pour obtenir tes propres objectifs (pas des règles génériques) — recalculé instantanément.</div>
+      <div class="lede" style="margin-top:0; margin-bottom:16px;">Renseigne tes chiffres pour obtenir tes propres objectifs (pas des règles génériques) — recalculé instantanément et <b>mémorisé</b> : reviens changer ton poids quand tu veux, tout se recalcule automatiquement (quantités des repas, objectif protéines, calories).</div>
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:14px; margin-bottom:16px;">
+        <div class="form-row" style="margin-bottom:0;">
+          <label for="calc-sexe">Sexe (pour le calcul)</label>
+          <select id="calc-sexe">
+            <option value="femme">Femme</option>
+            <option value="homme">Homme</option>
+          </select>
+        </div>
         <div class="form-row" style="margin-bottom:0;">
           <label for="calc-poids">Poids (kg)</label>
           <input type="number" id="calc-poids" value="75" min="30" step="0.5">
@@ -67,6 +74,19 @@
         </div>
       </div>
       <div id="calc-results" class="nutri-grid"></div>
+    </div>
+
+    <div class="altar" style="margin-bottom:28px;">
+      <h3 style="font-family:var(--font-display); color:var(--gold-bright); margin-bottom:14px; font-size:16px;">⚖ Objectif de perte de poids</h3>
+      <div class="lede" style="margin-top:0; margin-bottom:16px;">Indique combien de kilos tu veux perdre : ça s'ajuste automatiquement à ton poids et à ton déficit choisis ci-dessus.</div>
+      <div style="display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap; margin-bottom:16px;">
+        <div class="form-row" style="margin-bottom:0;">
+          <label for="goal-poids-a-perdre">Poids à perdre (kg)</label>
+          <input type="number" id="goal-poids-a-perdre" min="0" step="0.5" placeholder="ex: 5" style="max-width:140px;">
+        </div>
+        <button class="btn secondary" onclick="resetWeightGoalAndRender()">Réinitialiser</button>
+      </div>
+      <div id="weight-goal-results" class="nutri-grid"></div>
     </div>
 
     <div class="nutri-grid">
@@ -110,6 +130,17 @@
           <li>Grignotage nocturne hors faim réelle</li>
         </ul>
       </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="rune-mark">Suivi du jour</div>
+      <h2>Journal calorique</h2>
+      <p class="lede">Clique "J'ai mangé ce repas" sur le petit-déj ou "Compose ton repas" ci-dessous pour l'ajouter ici. Remise à zéro automatique chaque nouveau jour.</p>
+    </div>
+    <div class="altar">
+      <div id="daily-log-panel"></div>
     </div>
   </div>
 
@@ -166,6 +197,7 @@
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
           <button class="btn" onclick="addCurrentMealToList()">Ajouter à ma liste de courses ⚔</button>
           <button class="btn secondary" onclick="consumeCurrentMealFromStock()" title="Retire directement ces quantités de ton stock, sans passer par les courses">Consommer depuis mon stock</button>
+          <button class="btn secondary" onclick="eatCurrentMeal()" title="Compte ce repas dans ton total calorique du jour">🍽 J'ai mangé ce repas</button>
         </div>
       </div>
     </div>
@@ -197,6 +229,7 @@
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
         <button class="btn" onclick="addBreakfastToList()">Ajouter à ma liste de courses ⚔</button>
         <button class="btn secondary" onclick="consumeBreakfastFromStock()" title="Retire directement ces quantités de ton stock">Consommer depuis mon stock</button>
+        <button class="btn secondary" onclick="eatBreakfast()" title="Compte ce petit-déjeuner dans ton total calorique du jour">🍽 J'ai mangé ce petit-déj</button>
       </div>
     </div>
   </div>
@@ -449,6 +482,18 @@
     showSimpleToast("Repas retiré de ton stock");
   }
 
+  function eatCurrentMeal(){
+    const parts = getComposedMealParts();
+    if(!parts){
+      showSimpleToast("Choisis une protéine, un féculent, un légume ET un assaisonnement d'abord.");
+      return;
+    }
+    const items = [parts.protein, parts.starch, parts.vegetable, parts.seasoning];
+    const kcal = logMealCalories(`Repas — ${parts.protein.name}`, items);
+    renderDailyLog();
+    showSimpleToast(`Repas compté : +${kcal} kcal aujourd'hui`);
+  }
+
   /* ---------- Petit-déjeuner ---------- */
   function initBreakfastSelects(){
     const baseSel = document.getElementById("breakfast-select-base");
@@ -502,6 +547,14 @@
     consumeStockQty(parts.topping.name, parts.topping.qty);
     renderStock();
     showSimpleToast("Petit-déjeuner retiré de ton stock");
+  }
+
+  function eatBreakfast(){
+    const parts = getComposedBreakfastParts();
+    if(!parts){ showSimpleToast("Choisis une base ET un accompagnement d'abord."); return; }
+    const kcal = logMealCalories(`Petit-déjeuner — ${parts.base.name}`, [parts.base, parts.topping]);
+    renderDailyLog();
+    showSimpleToast(`Petit-déj compté : +${kcal} kcal aujourd'hui`);
   }
 
   function renderGroceryList(){
@@ -619,6 +672,53 @@
     }
   }
 
+  /* ---------- Journal calorique du jour ---------- */
+  function renderDailyLog(){
+    const el = document.getElementById("daily-log-panel");
+    const { entries, kcalTotal } = dailyLogTotals();
+    const suppKcal = supplementsTotals().caloriesTotal;
+    const grandTotal = kcalTotal + suppKcal;
+    const target = calcObjectifs ? Math.round(calcObjectifs.objectifCalorique) : null;
+
+    let listHtml;
+    if(entries.length === 0){
+      listHtml = '<div class="empty-note">Aucun repas compté aujourd\'hui pour l\'instant.</div>';
+    } else {
+      listHtml = entries.map((e, i) => `
+        <div class="grocery-item">
+          <span>${e.time} — ${e.label}</span>
+          <span class="grocery-qty">${e.kcal} kcal</span>
+          <button class="grocery-remove" title="Retirer cette entrée" onclick="removeDailyLogEntryAndRender(${i})">✕</button>
+        </div>
+      `).join("");
+    }
+
+    let summaryHtml;
+    if(target !== null){
+      const remaining = target - grandTotal;
+      summaryHtml = remaining >= 0
+        ? `<div class="macro-row"><span>Il te reste</span><b class="supp-remaining-ok">${remaining} kcal</b> <span style="color:var(--parchment-dim);">sur ${target} kcal</span></div>`
+        : `<div class="macro-row"><span>Dépassement</span><b class="supp-remaining-over">+${Math.abs(remaining)} kcal</b> <span style="color:var(--parchment-dim);">au-dessus de ton objectif (${target} kcal)</span></div>`;
+    } else {
+      summaryHtml = `<div class="empty-note">Renseigne poids/taille/âge dans le calculateur plus haut pour voir ton objectif.</div>`;
+    }
+
+    el.innerHTML = `
+      ${listHtml}
+      <div class="supp-summary">
+        <div class="macro-row"><span>Repas + petit-déj</span><b>${kcalTotal} kcal</b></div>
+        <div class="macro-row"><span>Shakers + barres</span><b>${suppKcal} kcal</b></div>
+        <div class="macro-row"><span>Total aujourd'hui</span><b>${grandTotal} kcal</b></div>
+        ${summaryHtml}
+      </div>
+    `;
+  }
+
+  function removeDailyLogEntryAndRender(index){
+    removeDailyLogEntry(index);
+    renderDailyLog();
+  }
+
   /* ---------- Suppléments du jour (shakers / barres) ---------- */
   function renderSupplements(){
     const t = supplementsTotals();
@@ -680,12 +780,14 @@
   function changeSupplementCount(type, delta){
     adjustSupplementCount(type, delta);
     renderSupplements();
+    if(document.getElementById("daily-log-panel")) renderDailyLog();
   }
 
   function updateSupplementUnit(type, field, value){
     const v = parseFloat(value) || 0;
     setSupplementUnitValue(type, field, v);
     renderSupplements();
+    if(document.getElementById("daily-log-panel")) renderDailyLog();
   }
 
   function renderSnacks(){
@@ -703,6 +805,7 @@
     const age = parseFloat(document.getElementById("calc-age").value) || 0;
     const activite = parseFloat(document.getElementById("calc-activite").value) || 1.4;
     const deficit = parseFloat(document.getElementById("calc-deficit").value);
+    const sexe = document.getElementById("calc-sexe").value;
     const el = document.getElementById("calc-results");
 
     if(poids <= 0 || taille <= 0 || age <= 0){
@@ -710,8 +813,10 @@
       return;
     }
 
-    // Formule de Mifflin-St Jeor (femme)
-    const bmr = 10*poids + 6.25*taille - 5*age - 161;
+    // Formule de Mifflin-St Jeor, correcte selon le sexe (+5 homme, -161 femme).
+    const bmr = sexe === "homme"
+      ? 10*poids + 6.25*taille - 5*age + 5
+      : 10*poids + 6.25*taille - 5*age - 161;
     const tdee = bmr * activite;
     const objectifCalorique = tdee - deficit;
 
@@ -725,6 +830,8 @@
     const deficitLabel = deficit < 0 ? "Prise de masse légère" : deficit === 0 ? "Maintien" : deficit <= 300 ? "Perte de poids légère" : deficit <= 500 ? "Perte de poids modérée" : "Sèche agressive";
 
     calcObjectifs = { tdee, objectifCalorique, proteines, lipidesBas, lipidesHaut, eauL, deficit };
+    saveProfile(poids, taille, age, activite, deficit, sexe);
+    if(document.getElementById("weight-goal-results")) renderWeightGoal();
     // Si un repas est déjà en cours de composition, on rafraîchit juste les quantités
     // PAR DÉFAUT — la personne peut toujours les modifier ensuite.
     if(currentProtein && document.getElementById("meal-qty-protein")){
@@ -732,6 +839,7 @@
     }
     onStarchChange(true);
     if(document.getElementById("supplements-panel")) renderSupplements();
+    if(document.getElementById("daily-log-panel")) renderDailyLog();
 
     el.innerHTML = `
       <div class="nutri-card">
@@ -755,17 +863,82 @@
     try{ fn(); }catch(e){ console.error(`Erreur dans ${label} :`, e); }
   }
 
+  function loadSavedProfile(){
+    const p = state.profile;
+    if(!p) return;
+    if(p.poids) document.getElementById("calc-poids").value = p.poids;
+    if(p.taille) document.getElementById("calc-taille").value = p.taille;
+    if(p.age) document.getElementById("calc-age").value = p.age;
+    if(p.activite) document.getElementById("calc-activite").value = p.activite;
+    if(p.deficit !== undefined && p.deficit !== null) document.getElementById("calc-deficit").value = p.deficit;
+    if(p.sexe) document.getElementById("calc-sexe").value = p.sexe;
+    const wg = state.weightGoal;
+    if(wg && wg.poidsAPerdre) document.getElementById("goal-poids-a-perdre").value = wg.poidsAPerdre;
+  }
+
+  function renderWeightGoal(){
+    const el = document.getElementById("weight-goal-results");
+    const poidsAPerdre = parseFloat(document.getElementById("goal-poids-a-perdre").value) || 0;
+    saveWeightGoal(poidsAPerdre || null);
+
+    if(!poidsAPerdre || poidsAPerdre <= 0){
+      el.innerHTML = '<div class="empty-note">Renseigne le nombre de kilos que tu veux perdre pour voir une estimation.</div>';
+      return;
+    }
+    if(!calcObjectifs){
+      el.innerHTML = '<div class="empty-note">Renseigne poids/taille/âge dans le calculateur ci-dessus pour voir une estimation.</div>';
+      return;
+    }
+
+    const poidsActuel = parseFloat(document.getElementById("calc-poids").value) || 0;
+    const poidsVise = Math.max(0, poidsActuel - poidsAPerdre);
+    const deficit = calcObjectifs.deficit;
+
+    let dureeHtml;
+    if(deficit > 0){
+      const semaines = Math.ceil((poidsAPerdre * 7700) / (deficit * 7));
+      const mois = (semaines / 4.345).toFixed(1);
+      dureeHtml = `<div class="macro-row"><span>Durée estimée</span><b>${semaines} semaine${semaines>1?"s":""} (~${mois} mois)</b></div>`;
+    } else {
+      dureeHtml = `<div class="empty-note">Choisis un objectif "Perte de poids" ou "Sèche" dans le calculateur ci-dessus pour estimer une durée — en Maintien ou Prise de masse, tu ne perds pas de poids.</div>`;
+    }
+
+    el.innerHTML = `
+      <div class="nutri-card">
+        <h3>Ton objectif</h3>
+        <div class="macro-row"><span>Poids actuel</span><b>${poidsActuel} kg</b></div>
+        <div class="macro-row"><span>Poids visé</span><b>${poidsVise} kg</b></div>
+        <div class="macro-row"><span>À perdre</span><b>${poidsAPerdre} kg</b></div>
+        ${dureeHtml}
+      </div>
+      <div class="nutri-card">
+        <h3>Comment lire cette estimation</h3>
+        <p>Basée sur l'équivalence approximative <b>~7700 kcal = 1 kg de graisse</b>, avec le déficit calorique choisi dans le calculateur ci-dessus. C'est une estimation, pas une science exacte — le poids réel varie aussi selon l'eau et la digestion au jour le jour.</p>
+      </div>
+    `;
+  }
+
+  function resetWeightGoalAndRender(){
+    document.getElementById("goal-poids-a-perdre").value = "";
+    resetWeightGoal();
+    renderWeightGoal();
+  }
+
   (async () => {
     await initPage("nutrition");
+    safeRun(loadSavedProfile, "loadSavedProfile");
     safeRun(renderProteinGrid, "renderProteinGrid");
     safeRun(initBreakfastSelects, "initBreakfastSelects");
     safeRun(renderGroceryList, "renderGroceryList");
     safeRun(renderStock, "renderStock");
     safeRun(renderStockAddOptions, "renderStockAddOptions");
+    safeRun(renderDailyLog, "renderDailyLog");
     safeRun(renderSupplements, "renderSupplements");
     safeRun(renderSnacks, "renderSnacks");
     safeRun(calculerObjectifs, "calculerObjectifs");
-    ["calc-poids","calc-taille","calc-age","calc-activite","calc-deficit"].forEach(id => {
+    safeRun(renderWeightGoal, "renderWeightGoal");
+    document.getElementById("goal-poids-a-perdre").addEventListener("input", () => safeRun(renderWeightGoal, "renderWeightGoal"));
+    ["calc-poids","calc-taille","calc-age","calc-activite","calc-deficit","calc-sexe"].forEach(id => {
       document.getElementById(id).addEventListener("input", () => safeRun(calculerObjectifs, "calculerObjectifs"));
       document.getElementById(id).addEventListener("change", () => safeRun(calculerObjectifs, "calculerObjectifs"));
     });
