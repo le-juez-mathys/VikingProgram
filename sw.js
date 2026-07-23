@@ -1,4 +1,4 @@
-const CACHE_NAME = "saga-du-viking-v2";
+const CACHE_NAME = "saga-du-viking-v3";
 const CORE_ASSETS = [
   "index.html",
   "push.html",
@@ -9,6 +9,7 @@ const CORE_ASSETS = [
   "nutrition.html",
   "corps.html",
   "custom.html",
+  "suivi.html",
   "assets/style.css",
   "assets/app.js",
   "assets/icon-192.png",
