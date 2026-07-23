@@ -168,6 +168,16 @@ a{color:inherit;}
 .exo-done input[type=checkbox]{width:18px; height:18px; accent-color:var(--ember-bright);}
 .exo-done label{font-family:var(--font-mono); font-size:11px; color:var(--parchment-dim); text-transform:uppercase; letter-spacing:1px; margin:0;}
 
+.exo-media{
+  display:flex; align-items:center; gap:18px; margin-top:10px; padding:8px 12px;
+  background:rgba(0,0,0,0.18); border:1px solid var(--iron); border-radius:6px; flex-wrap:wrap;
+}
+.exo-icon{display:flex; align-items:center; justify-content:center; width:48px; height:48px; flex-shrink:0;}
+.exo-icon-label{font-family:var(--font-mono); font-size:9.5px; color:var(--parchment-dim); text-transform:uppercase; letter-spacing:0.5px; text-align:center; margin-top:2px;}
+.exo-icon-wrap{display:flex; flex-direction:column; align-items:center; gap:2px;}
+.exo-zonemap{display:flex; align-items:center; gap:8px;}
+.exo-zonemap span{font-family:var(--font-mono); font-size:10.5px; color:var(--parchment-dim); text-transform:uppercase; letter-spacing:0.5px; max-width:160px;}
+
 /* ---------- FORM / ALTAR ---------- */
 .altar{background:var(--panel); border:1px solid var(--iron); border-radius:6px; padding:22px;}
 .form-row{display:flex; flex-direction:column; gap:6px; margin-bottom:16px;}
@@ -266,6 +276,76 @@ table.menu tr:last-child td{border-bottom:none;}
 .snack-card{background:var(--panel); border:1px solid var(--iron); border-radius:6px; padding:14px 16px;}
 .snack-card .sc-name{font-family:var(--font-display); font-size:14.5px; color:var(--gold-bright);}
 .snack-card .sc-note{font-size:13px; color:var(--parchment-dim); margin-top:4px;}
+
+/* ---------- Générateur de repas ---------- */
+.protein-grid{width:100%;}
+.protein-cat-label{font-family:var(--font-mono); font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:var(--gold); margin:12px 0 6px;}
+.protein-cat-label:first-child{margin-top:0;}
+.protein-cat-row{display:flex; flex-wrap:wrap; gap:8px;}
+.protein-btn{
+  font-family:var(--font-body); font-size:13.5px; padding:8px 14px; border-radius:20px;
+  border:1px solid var(--iron-light); background:transparent; color:var(--parchment-dim); cursor:pointer; transition:all .15s ease;
+}
+.protein-btn:hover{border-color:var(--gold); color:var(--gold-bright);}
+.protein-btn.active{background:rgba(184,84,31,0.18); border-color:var(--ember-bright); color:var(--parchment);}
+
+.meal-card{background:rgba(0,0,0,0.18); border:1px solid var(--iron); border-radius:6px; padding:14px 16px;}
+.meal-row{display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(58,63,71,0.4); flex-wrap:wrap;}
+.meal-row:last-child{border-bottom:none;}
+.meal-tag{font-family:var(--font-mono); font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--gold); width:120px; flex-shrink:0;}
+.meal-row b{color:var(--parchment); font-family:var(--font-display); font-size:14.5px; flex:1;}
+.meal-qty{font-family:var(--font-mono); font-size:12px; color:var(--parchment-dim); white-space:nowrap;}
+
+.grocery-cat{margin-bottom:16px;}
+.grocery-cat-label{font-family:var(--font-mono); font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:var(--gold); margin-bottom:6px;}
+.grocery-item{display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--panel); border:1px solid var(--iron); border-radius:4px; margin-bottom:6px;}
+.grocery-item span:first-child{flex:1; color:var(--parchment); font-size:14px;}
+.grocery-qty{font-family:var(--font-mono); font-size:12px; color:var(--gold-bright); white-space:nowrap;}
+.grocery-remove{
+  background:transparent; border:none; color:var(--parchment-dim); cursor:pointer; font-size:14px; padding:2px 6px; border-radius:4px;
+}
+.grocery-remove:hover{color:var(--ember-bright); background:rgba(184,84,31,0.12);}
+
+/* ---------- Séance libre ---------- */
+.custom-row{display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; background:var(--panel); border:1px solid var(--iron); border-radius:6px; padding:10px 12px;}
+.custom-name{flex:1; min-width:180px; background:var(--void); border:1px solid var(--iron-light); color:var(--parchment); padding:8px 10px; border-radius:4px; font-family:var(--font-body); font-size:14px;}
+.custom-weight, .custom-reps, .custom-sets{width:90px; background:var(--void); border:1px solid var(--iron-light); color:var(--parchment); padding:8px 10px; border-radius:4px; font-family:var(--font-body); font-size:14px;}
+.custom-remove{background:transparent; border:none; color:var(--parchment-dim); cursor:pointer; font-size:15px; padding:4px 8px;}
+.custom-remove:hover{color:var(--ember-bright);}
+
+/* ---------- Mode alimentaire (Normal / Sèche) ---------- */
+.mode-toggle{display:flex; gap:8px; margin-bottom:18px;}
+.mode-btn{
+  font-family:var(--font-mono); font-size:12px; letter-spacing:1px; text-transform:uppercase;
+  padding:9px 18px; border:1px solid var(--iron-light); border-radius:4px; cursor:pointer; color:var(--parchment-dim);
+  background:transparent; transition:all .15s ease;
+}
+.mode-btn.active{color:var(--gold-bright); border-color:var(--gold); background:rgba(201,163,93,0.08);}
+.mode-note{font-size:12.5px; color:var(--parchment-dim); font-style:italic; margin-bottom:16px;}
+
+/* ---------- Sélection manuelle du repas ---------- */
+.meal-select-row{display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;}
+.meal-select-row label{font-family:var(--font-mono); font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--gold); width:120px; flex-shrink:0;}
+.meal-select-row select{flex:1; min-width:180px; background:var(--void); border:1px solid var(--iron-light); color:var(--parchment); padding:8px 10px; border-radius:4px; font-family:var(--font-body); font-size:14px;}
+.meal-select-row input[type=number]{width:90px; background:var(--void); border:1px solid var(--iron-light); color:var(--parchment); padding:8px 10px; border-radius:4px; font-family:var(--font-body); font-size:14px;}
+.meal-select-row .unit-label{font-family:var(--font-mono); font-size:11px; color:var(--parchment-dim); white-space:nowrap;}
+
+/* ---------- État des stocks ---------- */
+.stock-alert-banner{background:rgba(184,84,31,0.12); border:1px solid var(--ember-bright); border-radius:6px; padding:12px 16px; margin-bottom:18px; font-size:13.5px; color:var(--parchment);}
+.stock-alert-banner b{color:var(--ember-bright);}
+.stock-row{display:flex; align-items:center; gap:10px; padding:9px 12px; background:var(--panel); border:1px solid var(--iron); border-radius:4px; margin-bottom:6px; flex-wrap:wrap;}
+.stock-row.stock-bas{border-color:var(--ember-bright);}
+.stock-row.stock-epuise{border-color:#a13a3a; opacity:0.85;}
+.stock-row .stock-name{flex:1; min-width:140px; color:var(--parchment); font-size:14px;}
+.stock-row .stock-badge{font-family:var(--font-mono); font-size:10px; letter-spacing:0.5px; text-transform:uppercase; padding:3px 8px; border-radius:10px;}
+.stock-row.stock-bas .stock-badge{background:rgba(184,84,31,0.2); color:var(--ember-bright);}
+.stock-row.stock-epuise .stock-badge{background:rgba(161,58,58,0.25); color:#d98a8a;}
+.stock-row.stock-ok .stock-badge{background:rgba(90,110,90,0.2); color:var(--parchment-dim);}
+.stock-row input[type=number]{width:80px; background:var(--void); border:1px solid var(--iron-light); color:var(--parchment); padding:6px 8px; border-radius:4px; font-family:var(--font-body); font-size:13px;}
+.stock-add-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:14px;}
+.stock-add-row select, .stock-add-row input{background:var(--void); border:1px solid var(--iron-light); color:var(--parchment); padding:8px 10px; border-radius:4px; font-family:var(--font-body); font-size:14px;}
+.stock-add-row select{flex:1; min-width:200px;}
+.stock-add-row input{width:100px;}
 
 @media (max-width: 700px){
   #sheet-grid{grid-template-columns:1fr !important;}

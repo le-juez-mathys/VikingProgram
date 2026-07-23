@@ -3,17 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Provisions — Saga du Viking</title>
+<title>Provisions — Académie Étoile</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0b0d10">
+<meta name="theme-color" content="#1b1224">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Viking">
+<meta name="apple-mobile-web-app-title" content="Étoile">
 <link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png">
 </head>
 <body>
 
@@ -25,13 +27,41 @@
   <div class="section" style="border-top:1px solid var(--iron); padding-top:34px;">
     <div class="section-head">
       <div class="rune-mark">Quête · Vitalité</div>
-      <h2>Les provisions du guerrier</h2>
-      <p class="lede">Un viking ne combat pas le ventre plein de sucre ni vide de force. Objectif : léger déficit calorique + protéines élevées pour sécher tout en gardant le muscle.</p>
+      <h2>Le festin scintillant</h2>
+      <p class="lede">On ne brille pas le ventre plein de sucre ni vide d'énergie. Objectif : léger déficit calorique + protéines élevées pour affiner la silhouette tout en gardant du tonus.</p>
+    </div>
+
+    <div class="altar" style="margin-bottom:28px;">
+      <h3 style="font-family:var(--font-display); color:var(--gold-bright); margin-bottom:14px; font-size:16px;">✨ Calculateur personnalisé</h3>
+      <div class="lede" style="margin-top:0; margin-bottom:16px;">Renseigne tes chiffres pour obtenir tes propres objectifs (pas des règles génériques) — recalculé instantanément.</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:14px; margin-bottom:16px;">
+        <div class="form-row" style="margin-bottom:0;">
+          <label for="calc-poids">Poids (kg)</label>
+          <input type="number" id="calc-poids" value="75" min="30" step="0.5">
+        </div>
+        <div class="form-row" style="margin-bottom:0;">
+          <label for="calc-taille">Taille (cm)</label>
+          <input type="number" id="calc-taille" value="168" min="120" step="1">
+        </div>
+        <div class="form-row" style="margin-bottom:0;">
+          <label for="calc-age">Âge</label>
+          <input type="number" id="calc-age" value="25" min="14" step="1">
+        </div>
+        <div class="form-row" style="margin-bottom:0;">
+          <label for="calc-activite">Niveau d'activité</label>
+          <select id="calc-activite">
+            <option value="1.3">Peu active (assise, peu de sport)</option>
+            <option value="1.45" selected>Modérée (3-5 séances/semaine)</option>
+            <option value="1.6">Active (sport quasi quotidien)</option>
+          </select>
+        </div>
+      </div>
+      <div id="calc-results" class="nutri-grid"></div>
     </div>
 
     <div class="nutri-grid">
       <div class="nutri-card">
-        <h3>Les règles du festin</h3>
+        <h3>Les règles générales du festin</h3>
         <div class="macro-row"><span>Déficit calorique</span><b>-300 à -500 kcal / jour</b></div>
         <div class="macro-row"><span>Protéines</span><b>2 g / kg de poids de corps</b></div>
         <div class="macro-row"><span>Glucides</span><b>autour des séances, le reste modéré</b></div>
@@ -41,11 +71,11 @@
       </div>
 
       <div class="nutri-card">
-        <h3>Journée type du guerrier</h3>
+        <h3>Journée type scintillante</h3>
         <ul>
-          <li><b>Réveil du guerrier</b> — œufs ou skyr/fromage blanc + flocons d'avoine + fruit</li>
+          <li><b>Réveil scintillant</b> — œufs ou skyr/fromage blanc + flocons d'avoine + fruit</li>
           <li><b>Ration de midi</b> — féculent complet + légumes + viande blanche/poisson/tofu</li>
-          <li><b>Collation d'avant-bataille</b> — fruit + oléagineux ou yaourt protéiné</li>
+          <li><b>Collation pétillante</b> — fruit + oléagineux ou yaourt protéiné</li>
           <li><b>Festin du soir</b> — protéine + légumes à volonté + petite portion de féculent selon activité du jour</li>
         </ul>
       </div>
@@ -76,21 +106,88 @@
   <div class="section">
     <div class="section-head">
       <div class="rune-mark">Ravitaillement</div>
-      <h2>Le menu de la semaine</h2>
-      <p class="lede">Le menu change automatiquement chaque semaine (3 semaines qui tournent) pour éviter la lassitude. Tu peux aussi consulter les autres semaines à l'avance.</p>
+      <h2>Compose ton repas</h2>
+      <p class="lede">C'est toi qui choisis tout : la protéine, le féculent, le légume et l'assaisonnement. L'app propose juste des quantités de départ (ajustées à ton objectif protéines et au mode Sèche), mais tu peux toutes les modifier avant d'ajouter à ta liste.</p>
     </div>
 
-    <div class="week-select-row">
-      <label for="week-select" style="font-family:var(--font-mono); font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--gold);">Semaine affichée</label>
-      <select id="week-select" style="max-width:260px;"></select>
-      <button class="btn secondary" onclick="downloadShoppingList()">Télécharger la liste de courses ⤓</button>
-      <button class="btn secondary" onclick="downloadRecipes()">Télécharger les recettes ⤓</button>
-    </div>
+    <div class="altar">
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="mode-normal" onclick="setDietMode('normal')">Normal</button>
+        <button class="mode-btn" id="mode-seche" onclick="setDietMode('seche')">Sèche</button>
+      </div>
+      <div class="mode-note" id="mode-note">Mode Normal — quantités standards.</div>
 
-    <div style="overflow-x:auto;">
-      <table class="menu" id="menu-table"></table>
+      <div class="form-row" style="margin-bottom:0;">
+        <label>1. Choisis ta protéine</label>
+      </div>
+      <div class="protein-grid" id="protein-grid"></div>
+
+      <div id="meal-result" style="display:none; margin-top:20px;">
+        <div class="meal-select-row">
+          <label>Protéine</label>
+          <span style="flex:1; color:var(--parchment); font-family:var(--font-display);" id="meal-protein-name"></span>
+          <input type="number" id="meal-qty-protein" min="0" step="5">
+          <span class="unit-label" id="meal-unit-protein"></span>
+        </div>
+        <div class="meal-select-row">
+          <label>2. Féculent</label>
+          <select id="meal-select-starch" onchange="onStarchChange()">
+            <option value="">-- choisis --</option>
+          </select>
+          <input type="number" id="meal-qty-starch" min="0" step="5">
+          <span class="unit-label" id="meal-unit-starch"></span>
+        </div>
+        <div class="meal-select-row">
+          <label>3. Légume</label>
+          <select id="meal-select-veg" onchange="onVegChange()">
+            <option value="">-- choisis --</option>
+          </select>
+          <input type="number" id="meal-qty-veg" min="0" step="5">
+          <span class="unit-label" id="meal-unit-veg"></span>
+        </div>
+        <div class="meal-select-row">
+          <label>4. Assaisonnement</label>
+          <select id="meal-select-seasoning" onchange="onSeasoningChange()">
+            <option value="">-- choisis --</option>
+          </select>
+          <input type="number" id="meal-qty-seasoning" min="0" step="0.5">
+          <span class="unit-label" id="meal-unit-seasoning"></span>
+        </div>
+        <button class="btn" style="margin-top:10px;" onclick="addCurrentMealToList()">Ajouter à ma liste de courses ⚔</button>
+      </div>
     </div>
   </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="rune-mark">Provisions</div>
+      <h2>Ma liste de courses</h2>
+      <p class="lede">Chaque repas ajouté s'accumule ici avec ses quantités. Supprime ce qui n'est plus utile, télécharge la liste, ou marque les courses comme faites pour les transférer dans ton stock.</p>
+    </div>
+    <div id="grocery-list"></div>
+    <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
+      <button class="btn secondary" onclick="downloadGroceryList()">Télécharger la liste de courses ⤓</button>
+      <button class="btn" onclick="markShoppingDoneAndRender()">J'ai fait les courses → ajouter au stock</button>
+      <button class="btn secondary" onclick="clearGroceryAndRender()">Vider la liste</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="rune-mark">Garde-manger</div>
+      <h2>État des stocks</h2>
+      <p class="lede">Ce que tu as réellement chez toi, aliment par aliment. Modifie les quantités toi-même à tout moment — une alerte apparaît quand il ne reste presque plus rien.</p>
+    </div>
+    <div id="stock-alert-banner"></div>
+    <div id="stock-list"></div>
+    <div class="stock-add-row">
+      <select id="stock-add-name"></select>
+      <input type="number" id="stock-add-qty" min="0" step="5" placeholder="Quantité">
+      <span class="unit-label" id="stock-add-unit"></span>
+      <button class="btn secondary" onclick="addStockManual()">+ Ajouter au stock</button>
+    </div>
+  </div>
+
 
   <div class="section">
     <div class="section-head">
@@ -130,7 +227,7 @@
   </div>
 </div>
 
-<footer>Saga du Viking · tes données restent stockées sur cet appareil (stockage persistant du navigateur)</footer>
+<footer>Académie Étoile · tes données restent stockées sur cet appareil (stockage persistant du navigateur)</footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -138,45 +235,230 @@
 <script src="assets/firebase-config.js"></script>
 <script src="assets/app.js"></script>
 <script>
-  let selectedWeek = currentWeekIndex();
+  let currentProtein = null;
+  let dietMode = "normal"; // "normal" | "seche" — choisi par l'utilisateur, jamais automatique
+  let calcObjectifs = null; // rempli par calculerObjectifs(), utilisé pour la quantité de protéine par défaut
 
-  function renderWeekSelect(){
-    const sel = document.getElementById("week-select");
-    sel.innerHTML = WEEKLY_MENUS.map((w, i) =>
-      `<option value="${i}" ${i === selectedWeek ? "selected" : ""}>${w.name}${i === currentWeekIndex() ? " (cette semaine)" : ""}</option>`
-    ).join("");
-    sel.addEventListener("change", e => {
-      selectedWeek = parseInt(e.target.value, 10);
-      renderMenuTable();
+  function renderProteinGrid(){
+    const grid = document.getElementById("protein-grid");
+    const cats = [...new Set(MEAL_PROTEINS.map(p => p.cat))];
+    grid.innerHTML = cats.map(cat => `
+      <div class="protein-cat-label">${cat}</div>
+      <div class="protein-cat-row">
+        ${MEAL_PROTEINS.filter(p => p.cat === cat).map(p => `<button class="protein-btn" data-key="${p.key}" onclick="chooseProtein('${p.key}')">${p.name}</button>`).join("")}
+      </div>
+    `).join("");
+  }
+
+  function setDietMode(mode){
+    dietMode = mode;
+    document.getElementById("mode-normal").classList.toggle("active", mode === "normal");
+    document.getElementById("mode-seche").classList.toggle("active", mode === "seche");
+    document.getElementById("mode-note").textContent = mode === "seche"
+      ? "Mode Sèche — féculents réduits par défaut, protéines et légumes maintenus. Modifie librement les quantités."
+      : "Mode Normal — quantités standards.";
+    // Recalcule juste les quantités PAR DÉFAUT des champs déjà sélectionnés — tu peux toujours les changer après.
+    if(currentProtein) document.getElementById("meal-qty-protein").value = defaultProteinQty(currentProtein);
+    onStarchChange(true);
+    onSeasoningChange(true);
+  }
+
+  function defaultProteinQty(protein){
+    if(protein.unit !== "g") return protein.qty; // ex : œufs comptés à l'unité
+    const target = calcObjectifs && calcObjectifs.proteines ? calcObjectifs.proteines : null;
+    if(!target) return protein.qty;
+    return Math.round(target / 3); // répartition simple sur 3 repas principaux
+  }
+
+  function defaultStarchQty(starch){
+    return dietMode === "seche" ? Math.round(starch.qty * 0.6) : starch.qty;
+  }
+
+  function defaultSeasoningQty(seasoning){
+    if(dietMode === "seche" && seasoning.unit === "c. à soupe"){
+      return Math.max(0.5, seasoning.qty * 0.5);
+    }
+    return seasoning.qty;
+  }
+
+  function chooseProtein(key){
+    document.querySelectorAll(".protein-btn").forEach(b => b.classList.toggle("active", b.getAttribute("data-key") === key));
+    currentProtein = MEAL_PROTEINS.find(p => p.key === key);
+    document.getElementById("meal-result").style.display = "block";
+    document.getElementById("meal-protein-name").textContent = currentProtein.name;
+    document.getElementById("meal-qty-protein").value = defaultProteinQty(currentProtein);
+    document.getElementById("meal-unit-protein").textContent = currentProtein.unit;
+
+    const starchSel = document.getElementById("meal-select-starch");
+    starchSel.innerHTML = '<option value="">-- choisis --</option>' + MEAL_STARCHES.map(s => `<option value="${s.name}">${s.name}</option>`).join("");
+    const vegSel = document.getElementById("meal-select-veg");
+    vegSel.innerHTML = '<option value="">-- choisis --</option>' + MEAL_VEGETABLES.map(v => `<option value="${v.name}">${v.name}</option>`).join("");
+    const seasSel = document.getElementById("meal-select-seasoning");
+    seasSel.innerHTML = '<option value="">-- choisis --</option>' + MEAL_SEASONINGS.map(s => `<option value="${s.name}">${s.name}</option>`).join("");
+
+    starchSel.value = ""; vegSel.value = ""; seasSel.value = "";
+    document.getElementById("meal-qty-starch").value = "";
+    document.getElementById("meal-qty-veg").value = "";
+    document.getElementById("meal-qty-seasoning").value = "";
+    document.getElementById("meal-unit-starch").textContent = "";
+    document.getElementById("meal-unit-veg").textContent = "";
+    document.getElementById("meal-unit-seasoning").textContent = "";
+  }
+
+  function onStarchChange(keepIfEmpty){
+    const name = document.getElementById("meal-select-starch").value;
+    const starch = MEAL_STARCHES.find(s => s.name === name);
+    if(!starch){ if(!keepIfEmpty) document.getElementById("meal-qty-starch").value = ""; return; }
+    document.getElementById("meal-qty-starch").value = defaultStarchQty(starch);
+    document.getElementById("meal-unit-starch").textContent = starch.unit;
+  }
+
+  function onVegChange(){
+    const name = document.getElementById("meal-select-veg").value;
+    const veg = MEAL_VEGETABLES.find(v => v.name === name);
+    if(!veg) return;
+    document.getElementById("meal-qty-veg").value = veg.qty;
+    document.getElementById("meal-unit-veg").textContent = veg.unit;
+  }
+
+  function onSeasoningChange(keepIfEmpty){
+    const name = document.getElementById("meal-select-seasoning").value;
+    const seasoning = MEAL_SEASONINGS.find(s => s.name === name);
+    if(!seasoning){ if(!keepIfEmpty) document.getElementById("meal-qty-seasoning").value = ""; return; }
+    document.getElementById("meal-qty-seasoning").value = defaultSeasoningQty(seasoning);
+    document.getElementById("meal-unit-seasoning").textContent = seasoning.unit;
+  }
+
+  function addCurrentMealToList(){
+    if(!currentProtein){ alert("Choisis d'abord une protéine."); return; }
+    const starchName = document.getElementById("meal-select-starch").value;
+    const vegName = document.getElementById("meal-select-veg").value;
+    const seasoningName = document.getElementById("meal-select-seasoning").value;
+    if(!starchName || !vegName || !seasoningName){
+      alert("Choisis un féculent, un légume et un assaisonnement avant d'ajouter à la liste.");
+      return;
+    }
+    const starch = MEAL_STARCHES.find(s => s.name === starchName);
+    const vegetable = MEAL_VEGETABLES.find(v => v.name === vegName);
+    const seasoning = MEAL_SEASONINGS.find(s => s.name === seasoningName);
+
+    const proteinQty = parseFloat(document.getElementById("meal-qty-protein").value) || currentProtein.qty;
+    const starchQty = parseFloat(document.getElementById("meal-qty-starch").value) || starch.qty;
+    const vegQty = parseFloat(document.getElementById("meal-qty-veg").value) || vegetable.qty;
+    const seasoningQty = parseFloat(document.getElementById("meal-qty-seasoning").value) || seasoning.qty;
+
+    addGroceryItem({ name: currentProtein.name, qty: proteinQty, unit: currentProtein.unit, cat: "Protéines" });
+    addGroceryItem({ name: starch.name,         qty: starchQty,  unit: starch.unit,         cat: "Féculents" });
+    addGroceryItem({ name: vegetable.name,      qty: vegQty,     unit: vegetable.unit,      cat: "Fruits & légumes" });
+    addGroceryItem({ name: seasoning.name,      qty: seasoningQty, unit: seasoning.unit,    cat: seasoning.cat || "Épicerie" });
+    saveState();
+
+    renderGroceryList();
+    showSimpleToast("Repas ajouté à la liste de courses");
+  }
+
+  function renderGroceryList(){
+    const el = document.getElementById("grocery-list");
+    const list = state.groceryList || [];
+    if(list.length === 0){
+      el.innerHTML = '<div class="empty-note">Ta liste est vide pour l\'instant — compose un repas ci-dessus et ajoute-le.</div>';
+      return;
+    }
+    const byCat = {};
+    list.forEach((it, i) => { if(!byCat[it.cat]) byCat[it.cat] = []; byCat[it.cat].push({...it, idx:i}); });
+    el.innerHTML = GROCERY_CAT_ORDER.filter(c => byCat[c]).map(cat => `
+      <div class="grocery-cat">
+        <div class="grocery-cat-label">${cat}</div>
+        ${byCat[cat].map(it => `
+          <div class="grocery-item">
+            <span>${it.name}</span>
+            <span class="grocery-qty">${Number.isInteger(it.qty) ? it.qty : it.qty.toFixed(1)} ${it.unit}</span>
+            <button class="grocery-remove" title="Supprimer" onclick="removeGroceryItemAndRender(${it.idx})">✕</button>
+          </div>
+        `).join("")}
+      </div>
+    `).join("");
+  }
+
+  function removeGroceryItemAndRender(idx){
+    removeGroceryItem(idx);
+    renderGroceryList();
+  }
+
+  function clearGroceryAndRender(){
+    if(!confirm("Vider toute la liste de courses ?")) return;
+    clearGroceryList();
+    renderGroceryList();
+  }
+
+  function markShoppingDoneAndRender(){
+    if((state.groceryList || []).length === 0){ alert("Ta liste de courses est vide."); return; }
+    if(!confirm("Transférer toute la liste de courses dans ton stock, puis la vider ?")) return;
+    markShoppingDone();
+    renderGroceryList();
+    renderStock();
+    showSimpleToast("Stock mis à jour ⚔");
+  }
+
+  const STOCK_LEVEL_LABEL = { epuise: "Épuisé", bas: "Stock bas", ok: "OK" };
+
+  function renderStock(){
+    const rows = stockRows();
+    const banner = document.getElementById("stock-alert-banner");
+    const alerts = rows.filter(r => r.level === "bas" || r.level === "epuise");
+    banner.innerHTML = alerts.length
+      ? `<div class="stock-alert-banner">⚠ <b>${alerts.length} aliment${alerts.length>1?"s":""}</b> bientôt épuisé${alerts.length>1?"s":""} : ${alerts.map(a => `${a.name} (${Number.isInteger(a.qty)?a.qty:a.qty.toFixed(1)} ${a.unit})`).join(", ")}</div>`
+      : "";
+
+    const list = document.getElementById("stock-list");
+    if(rows.length === 0){
+      list.innerHTML = '<div class="empty-note">Aucun stock renseigné pour l\'instant. Ajoute un aliment ci-dessous, ou fais tes courses puis clique "J\'ai fait les courses".</div>';
+      return;
+    }
+    list.innerHTML = rows.map(r => `
+      <div class="stock-row stock-${r.level}">
+        <span class="stock-name">${r.name}</span>
+        <span class="stock-badge">${STOCK_LEVEL_LABEL[r.level]}</span>
+        <input type="number" min="0" step="5" value="${r.qty}" onchange="updateStockQty('${r.name.replace(/'/g,"\\'")}', this.value)">
+        <span class="unit-label">${r.unit}</span>
+        <button class="grocery-remove" title="Retirer du stock" onclick="removeStockItemAndRender('${r.name.replace(/'/g,"\\'")}')">✕</button>
+      </div>
+    `).join("");
+  }
+
+  function updateStockQty(name, value){
+    const qty = parseFloat(value) || 0;
+    setStockQty(name, qty);
+    renderStock();
+  }
+
+  function removeStockItemAndRender(name){
+    removeStockItem(name);
+    renderStock();
+  }
+
+  function addStockManual(){
+    const name = document.getElementById("stock-add-name").value;
+    const qty = parseFloat(document.getElementById("stock-add-qty").value) || 0;
+    if(!name || qty <= 0){ alert("Choisis un aliment et une quantité."); return; }
+    const ref = FOOD_REFERENCE[name];
+    addToStockQty(name, qty, ref ? ref.unit : "", ref ? ref.cat : "Épicerie");
+    saveState();
+    document.getElementById("stock-add-qty").value = "";
+    renderStock();
+  }
+
+  function renderStockAddOptions(){
+    const sel = document.getElementById("stock-add-name");
+    sel.innerHTML = allFoodNames().map(n => `<option value="${n}">${n}</option>`).join("");
+    sel.addEventListener("change", () => {
+      const ref = FOOD_REFERENCE[sel.value];
+      document.getElementById("stock-add-unit").textContent = ref ? ref.unit : "";
     });
-  }
-
-  function renderMenuTable(){
-    const week = WEEKLY_MENUS[selectedWeek];
-    const table = document.getElementById("menu-table");
-    table.innerHTML = `
-      <tr><th>Jour</th><th>Petit-déjeuner</th><th>Déjeuner</th><th>Dîner</th></tr>
-      ${week.days.map(d => `
-        <tr>
-          <td class="day-cell">${d.day}</td>
-          <td>${d.breakfast.name}</td>
-          <td>${d.lunch.name}</td>
-          <td>${d.dinner.name}</td>
-        </tr>
-      `).join("")}
-    `;
-  }
-
-  function downloadShoppingList(){
-    const text = generateShoppingListText(selectedWeek);
-    const filename = "courses-" + WEEKLY_MENUS[selectedWeek].name.toLowerCase().replace(/\s+/g, "-") + ".txt";
-    downloadTextFile(filename, text);
-  }
-
-  function downloadRecipes(){
-    const text = generateRecipesText(selectedWeek);
-    const filename = "recettes-" + WEEKLY_MENUS[selectedWeek].name.toLowerCase().replace(/\s+/g, "-") + ".txt";
-    downloadTextFile(filename, text);
+    if(sel.value){
+      const ref = FOOD_REFERENCE[sel.value];
+      document.getElementById("stock-add-unit").textContent = ref ? ref.unit : "";
+    }
   }
 
   function renderSnacks(){
@@ -188,11 +470,64 @@
     `).join("");
   }
 
+  function calculerObjectifs(){
+    const poids = parseFloat(document.getElementById("calc-poids").value) || 0;
+    const taille = parseFloat(document.getElementById("calc-taille").value) || 0;
+    const age = parseFloat(document.getElementById("calc-age").value) || 0;
+    const activite = parseFloat(document.getElementById("calc-activite").value) || 1.4;
+    const el = document.getElementById("calc-results");
+
+    if(poids <= 0 || taille <= 0 || age <= 0){
+      el.innerHTML = '<div class="empty-note">Renseigne poids, taille et âge pour voir tes objectifs.</div>';
+      return;
+    }
+
+    // Formule de Mifflin-St Jeor (femme)
+    const bmr = 10*poids + 6.25*taille - 5*age - 161;
+    const tdee = bmr * activite;
+    const deficitBas = tdee - 300;
+    const deficitHaut = tdee - 500;
+    const proteines = Math.round(poids * 2);
+    const lipidesBas = Math.round(poids * 0.8);
+    const lipidesHaut = Math.round(poids * 1);
+    const eauL = (poids * 0.035).toFixed(1);
+
+    calcObjectifs = { tdee, proteines, lipidesBas, lipidesHaut, eauL };
+    // Si une protéine est déjà choisie dans le générateur de repas, on rafraîchit
+    // juste sa quantité par défaut — la personne peut toujours la modifier ensuite.
+    if(currentProtein && document.getElementById("meal-qty-protein")){
+      document.getElementById("meal-qty-protein").value = defaultProteinQty(currentProtein);
+    }
+
+    el.innerHTML = `
+      <div class="nutri-card">
+        <h3>Ton estimation</h3>
+        <div class="macro-row"><span>Dépense estimée (maintien)</span><b>${Math.round(tdee)} kcal</b></div>
+        <div class="macro-row"><span>Objectif calorique</span><b>${Math.round(deficitHaut)} à ${Math.round(deficitBas)} kcal</b></div>
+        <div class="macro-row"><span>Protéines cibles</span><b>${proteines} g / jour</b></div>
+        <div class="macro-row"><span>Lipides cibles</span><b>${lipidesBas} à ${lipidesHaut} g / jour</b></div>
+        <div class="macro-row"><span>Eau conseillée</span><b>${eauL} L / jour</b></div>
+      </div>
+      <div class="nutri-card">
+        <h3>Comment lire ces chiffres</h3>
+        <p>Ce sont des <b>estimations</b> basées sur la formule de Mifflin-St Jeor, pas une mesure exacte — le métabolisme réel varie d'une personne à l'autre.</p>
+        <p style="margin-top:8px;">Pèse-toi 1 à 2 fois par semaine, à jeun, toujours dans les mêmes conditions. Si le poids ne bouge pas après 2-3 semaines à l'objectif bas, retire encore 100-150 kcal.</p>
+      </div>
+    `;
+  }
+
   (async () => {
     await initPage("nutrition");
-    renderWeekSelect();
-    renderMenuTable();
+    renderProteinGrid();
+    renderGroceryList();
+    renderStock();
+    renderStockAddOptions();
     renderSnacks();
+    calculerObjectifs();
+    ["calc-poids","calc-taille","calc-age","calc-activite"].forEach(id => {
+      document.getElementById(id).addEventListener("input", calculerObjectifs);
+      document.getElementById(id).addEventListener("change", calculerObjectifs);
+    });
   })();
 
   function validateNutrition(){

@@ -148,70 +148,74 @@ const PROGRAM = {
   push: {
     title: "Poussée I",
     exos: [
-      ["Développé couché (barre ou haltères)", "4", "8-10", "Allongé sur un banc, tu pousses la charge au-dessus de la poitrine. L'exercice de base pour les pectoraux, en sollicitant aussi épaules et triceps."],
-      ["Développé militaire haltères", "3", "8-10", "Debout ou assis, tu pousses les haltères au-dessus de la tête. Construit des épaules larges et rondes."],
-      ["Écarté couché ou pec deck", "3", "12-15", "Bras légèrement fléchis, tu rapproches les charges devant la poitrine en arc de cercle. Isole les pectoraux sans trop solliciter les triceps."],
-      ["Élévations latérales", "3", "12-15", "Haltères le long du corps, tu lèves les bras sur les côtés jusqu'à l'horizontale. Cible le faisceau latéral de l'épaule pour des épaules plus larges."],
-      ["Extensions triceps poulie", "3", "12-15", "Coudes fixes au corps, tu pousses la barre ou corde vers le bas. Finit le travail des triceps en fin de séance."],
+      ["Chest Press (développé assis guidé)", "4", "8-10", "Assis dans la machine, dossier réglé à hauteur de poitrine, tu pousses les poignées devant toi jusqu'à extension complète des bras. L'exercice de base pour les pectoraux, en sollicitant aussi épaules et triceps. Machine gamme Matrix Ultra/Versa.", "chest-press", ["pecs","epaules","triceps"]],
+      ["Shoulder Press (développé épaules guidé)", "3", "8-10", "Assis, dos calé contre le dossier, tu pousses les poignées au-dessus de la tête jusqu'à extension des bras. Construit des épaules larges et rondes en toute sécurité.", "shoulder-press", ["epaules"]],
+      ["Pec Fly / Écarté (pec deck)", "3", "12-15", "Assis, coudes légèrement fléchis posés sur les appuis, tu rapproches les bras devant toi en arc de cercle. Isole les pectoraux sans trop solliciter les triceps.", "pec-fly", ["pecs"]],
+      ["Élévations latérales (haltères)", "3", "12-15", "Haltères le long du corps, tu lèves les bras sur les côtés jusqu'à l'horizontale. Cible le faisceau latéral de l'épaule pour des épaules plus larges.", "dumbbell", ["epaules"]],
+      ["Extension triceps à la poulie haute", "3", "12-15", "Face au Cable Crossover (poulie haute), coudes fixes au corps, tu pousses la barre ou la corde vers le bas. Finit le travail des triceps en fin de séance.", "cable-pulley", ["triceps"]],
+      ["Rear Delt Fly (pec deck en position inversée)", "3", "12-15", "Face à la machine Pec Fly / Rear Delt tournée vers l'arrière, bras tendus, tu écartes les bras vers l'arrière. Construit l'arrière d'épaule pour un dos plus large vu de face — essentiel pour la silhouette en V.", "pec-fly", ["epaules"]],
+      ["Finisher abdos : Gainage planche", "2", "40s", "En fin de séance, en appui sur les avant-bras et les pieds, corps aligné et gainé. Un ventre visible se construit autant par la fréquence de travail des abdos que par l'alimentation et le cardio.", "bench", ["abdos"]],
     ]
   },
   push2: {
     title: "Poussée II",
     exos: [
-      ["Développé incliné haltères", "4", "8-10", "Sur un banc incliné à 30-45°, tu pousses les haltères vers le haut. Cible davantage le haut des pectoraux que le développé plat."],
-      ["Dips (lestés si possible)", "3", "8-12", "En appui sur des barres parallèles, tu descends puis remontes le corps en fléchissant les bras. Excellent pour pectoraux bas et triceps."],
-      ["Élévations latérales + frontales", "3", "12-15", "Alterne élévations sur le côté et devant toi pour travailler l'ensemble des faisceaux de l'épaule."],
-      ["Développé Arnold", "3", "10-12", "Variante du développé militaire où tu tournes les paumes de face vers l'avant en poussant. Sollicite l'épaule sous plusieurs angles."],
-      ["Extensions triceps nuque", "3", "12-15", "Haltère tenu à deux mains derrière la tête, tu tends les bras vers le haut. Étire bien le triceps en profondeur."],
+      ["Développé incliné haltères (banc inclinable)", "4", "8-10", "Sur un banc réglé à 30-45°, tu pousses les haltères vers le haut. Cible davantage le haut des pectoraux que le Chest Press à plat.", "dumbbell", ["pecs","epaules"]],
+      ["Développé serré à la Smith Machine", "3", "8-12", "Sur la Smith Machine, prise resserrée sur la barre guidée, tu pousses au-dessus de la poitrine. Cible le bas des pectoraux et les triceps avec un mouvement sécurisé et guidé.", "smith-machine", ["pecs","triceps"]],
+      ["Élévations latérales + frontales (haltères)", "3", "12-15", "Alterne élévations sur le côté et devant toi pour travailler l'ensemble des faisceaux de l'épaule.", "dumbbell", ["epaules"]],
+      ["Développé Arnold (haltères)", "3", "10-12", "Variante du développé épaules où tu tournes les paumes de face vers l'avant en poussant. Sollicite l'épaule sous plusieurs angles.", "dumbbell", ["epaules"]],
+      ["Extension triceps nuque (haltère)", "3", "12-15", "Haltère tenu à deux mains derrière la tête, tu tends les bras vers le haut. Étire bien le triceps en profondeur.", "dumbbell", ["triceps"]],
     ]
   },
   pull: {
     title: "Tirage I",
     exos: [
-      ["Tractions ou tirage vertical", "4", "6-10", "Tu tires ton corps (ou une barre) vers le haut, bras en pronation. La base pour construire la largeur du dos."],
-      ["Rowing barre ou haltère", "4", "8-10", "Buste penché en avant, tu tires la charge vers le nombril. Construit l'épaisseur du dos."],
-      ["Tirage horizontal poulie basse", "3", "10-12", "Assis, tu tires la poignée vers le buste en gardant le dos droit. Bon complément pour le milieu du dos."],
-      ["Face pull", "3", "12-15", "Tu tires une corde à hauteur du visage en écartant les mains. Renforce l'arrière d'épaule et corrige la posture."],
-      ["Curl biceps barre EZ", "3", "10-12", "Coudes fixes, tu fléchis les avant-bras pour remonter la barre. Isole le biceps en fin de séance."],
+      ["Lat Pulldown (tirage vertical poulie haute)", "4", "8-10", "Assis, cuisses calées sous les appuis, tu tires la barre vers le haut de la poitrine, bras en pronation. La base pour construire la largeur du dos.", "lat-pulldown", ["dos","biceps"]],
+      ["Seated Row (tirage horizontal assis)", "4", "8-10", "Assis, pieds calés sur les appuis, buste droit, tu tires les poignées vers le nombril. Construit l'épaisseur du dos.", "seated-row", ["dos","biceps"]],
+      ["Tirage poulie basse prise serrée", "3", "10-12", "Assis face à la poulie basse, tu tires la poignée triangle vers le buste en gardant le dos droit. Bon complément pour le milieu du dos.", "cable-pulley", ["dos"]],
+      ["Face pull (poulie double)", "3", "12-15", "Tu tires une corde à hauteur du visage en écartant les mains vers l'extérieur. Renforce l'arrière d'épaule et corrige la posture.", "cable-pulley", ["epaules","dos"]],
+      ["Biceps Curl (machine pupitre)", "3", "10-12", "Coudes calés sur le pupitre incliné, tu fléchis les avant-bras pour remonter la barre ou les poignées. Isole le biceps en fin de séance.", "dumbbell", ["biceps"]],
+      ["Finisher abdos : Relevé de jambes suspendu", "2", "12-15", "En fin de séance, suspendu à la barre, tu remontes les jambes vers la poitrine. Un dos large et un ventre plat vont de pair dans la silhouette recherchée : cible le bas des abdominaux.", "cable-pulley", ["abdos"]],
     ]
   },
   pull2: {
     title: "Tirage II",
     exos: [
-      ["Rowing unilatéral haltère", "4", "8-10", "Un genou et une main posés sur un banc, tu tires l'haltère vers la hanche d'un seul côté. Permet de corriger les déséquilibres gauche-droite."],
-      ["Tirage vertical prise large", "3", "10-12", "Barre tirée devant la poitrine avec une prise large. Accentue le travail en largeur du dos."],
-      ["Pull-over haltère", "3", "12-15", "Allongé, tu descends puis remontes un haltère tenu à deux mains au-dessus de la tête. Étire le dos et sollicite aussi les pectoraux."],
-      ["Curl marteau", "3", "10-12", "Curl réalisé paumes face à face (prise neutre). Cible le biceps et l'avant-bras différemment du curl classique."],
-      ["Shrugs trapèzes", "3", "12-15", "Haltères le long du corps, tu hausses simplement les épaules vers les oreilles. Développe le haut des trapèzes."],
+      ["Rowing unilatéral à la poulie basse", "4", "8-10", "Debout ou un genou au sol, tu tires la poignée d'un seul côté vers la hanche. Permet de corriger les déséquilibres gauche-droite.", "cable-pulley", ["dos","biceps"]],
+      ["Lat Pulldown prise large", "3", "10-12", "Barre tirée devant la poitrine avec une prise large sur le Lat Pulldown. Accentue le travail en largeur du dos.", "lat-pulldown", ["dos"]],
+      ["Pull-over à la poulie haute", "3", "12-15", "Bras tendus, tu descends puis remontes la barre depuis la poulie haute au-dessus de la tête. Étire le dos et sollicite aussi les pectoraux.", "cable-pulley", ["dos","pecs"]],
+      ["Curl marteau (haltères)", "3", "10-12", "Curl réalisé paumes face à face (prise neutre). Cible le biceps et l'avant-bras différemment du curl classique.", "dumbbell", ["biceps"]],
+      ["Shrugs trapèzes (haltères ou Smith Machine)", "3", "12-15", "Haltères le long du corps, ou barre guidée en Smith Machine, tu hausses simplement les épaules vers les oreilles. Développe le haut des trapèzes.", "smith-machine", ["dos","epaules"]],
     ]
   },
   legs: {
     title: "Jambes",
     exos: [
-      ["Squat (barre ou gobelet)", "4", "8-10", "Tu descends les hanches vers l'arrière puis remontes en poussant sur les jambes. Le mouvement roi pour quadriceps, fessiers et gainage."],
-      ["Soulevé de terre roumain", "3", "8-10", "Jambes presque tendues, tu descends la charge le long des jambes en poussant les hanches en arrière. Cible ischio-jambiers et fessiers."],
-      ["Fentes marchées", "3", "10-12", "Tu avances en fente, alternant les jambes à chaque pas. Travaille quadriceps et fessiers avec un aspect fonctionnel et l'équilibre."],
-      ["Leg curl ou pont fessier", "3", "12-15", "Leg curl : tu fléchis les genoux contre une résistance pour cibler les ischio-jambiers. Pont fessier : allongé, tu montes le bassin pour cibler les fessiers."],
-      ["Mollets debout", "4", "15-20", "Debout, tu montes sur la pointe des pieds contre une charge. Isole le mollet (gastrocnémien)."],
+      ["Squat (Cage à squat / Smith Machine)", "4", "8-10", "Barre sur les épaules dans la cage à squat, ou guidée sur la Smith Machine, tu descends les hanches vers l'arrière puis remontes en poussant sur les jambes. Le mouvement roi pour quadriceps, fessiers et gainage.", "smith-machine", ["quadriceps","fessiersischios"]],
+      ["Leg Press (presse à cuisses)", "4", "10-12", "Assis, dos calé, tu pousses la plateforme avec les jambes jusqu'à extension sans verrouiller les genoux. Cible quadriceps et fessiers en ménageant le bas du dos.", "leg-press", ["quadriceps","fessiersischios"]],
+      ["Leg Extension (machine)", "3", "12-15", "Assis, tibias calés sous le rouleau, tu tends les jambes vers l'avant. Isole le quadriceps.", "leg-extension", ["quadriceps"]],
+      ["Seated Leg Curl (ischios, machine)", "3", "12-15", "Assis ou allongé, tu fléchis les genoux contre la résistance du rouleau. Cible les ischio-jambiers.", "leg-curl", ["fessiersischios"]],
+      ["Mollets debout (machine ou Smith Machine)", "4", "15-20", "Debout, tu montes sur la pointe des pieds contre une charge. Isole le mollet (gastrocnémien).", "smith-machine", ["mollets"]],
+      ["Finisher abdos : Abdominal Crunch (machine)", "2", "15-20", "En fin de séance, assis dans la machine, tu enroules le buste vers les genoux contre la résistance. Répartir le travail des abdos sur plusieurs séances accélère la définition visible du ventre.", "abdominal-crunch", ["abdos"]],
     ]
   },
   cardio: {
     title: "Cardio & Abdos",
     exos: [
-      ["Marche rapide, vélo ou rameur (30-40 min)", "1", "30-40 min", "Activité cardio à intensité modérée et continue. C'est le principal levier pour brûler des graisses et faire fondre le tour de ventre."],
-      ["Crunch classique", "3", "15-20", "Allongé, tu enroules le buste vers les genoux en contractant les abdominaux. L'exercice de base pour le grand droit de l'abdomen."],
-      ["Relevé de jambes suspendu ou au sol", "3", "12-15", "Tu remontes les jambes tendues ou fléchies vers la poitrine. Cible surtout le bas des abdominaux."],
-      ["Gainage planche + variantes", "3", "40s", "En appui sur les avant-bras et les pieds, tu maintiens le corps aligné et gainé. Renforce toute la sangle abdominale en statique."],
-      ["Mountain climbers", "3", "30s", "En position de planche, tu ramènes rapidement les genoux vers la poitrine en alternance. Combine gainage et travail cardio."],
+      ["Cardio au choix (Tapis, Vélo, Rameur ou Escaliers) — 30-40 min", "1", "30-40 min", "Choisis un Tapis de course, un Vélo (droit ou assis), un Rameur ou les Escaliers (StairMaster), à intensité modérée et continue. C'est le principal levier pour brûler des graisses et faire fondre le tour de ventre.", "treadmill", []],
+      ["Abdominal Crunch (machine guidée)", "3", "15-20", "Assis dans la machine, tu enroules le buste vers les genoux contre la résistance en contractant les abdominaux. Version guidée et sécurisée du crunch classique.", "abdominal-crunch", ["abdos"]],
+      ["Relevé de jambes suspendu", "3", "12-15", "Suspendu à la barre de tirage ou aux appuis dédiés, tu remontes les jambes tendues ou fléchies vers la poitrine. Cible surtout le bas des abdominaux.", "cable-pulley", ["abdos"]],
+      ["Back Extension (machine)", "3", "12-15", "Allongé face contre le support incliné, chevilles calées, tu remontes le buste jusqu'à l'alignement du corps. Renforce le bas du dos et les lombaires.", "back-extension", ["dos"]],
+      ["Gainage planche + Mountain climbers", "3", "40s", "En appui sur les avant-bras et les pieds, tu maintiens le corps aligné et gainé, puis ramènes rapidement les genoux vers la poitrine en alternance. Combine gainage statique et travail cardio.", "bench", ["abdos"]],
     ]
   },
   mobility: {
     title: "Repos actif / Mobilité",
     exos: [
-      ["Marche légère (20-30 min)", "1", "20-30 min", "Une marche à allure tranquille pour favoriser la récupération sans fatiguer davantage le corps."],
-      ["Étirements complets", "1", "10-15 min", "Étire les principaux groupes musculaires sollicités dans la semaine pour préserver la souplesse et réduire les tensions."],
-      ["Mobilité hanches / épaules", "1", "10 min", "Mouvements circulaires et amplitudes contrôlées pour entretenir la mobilité articulaire de ces zones souvent raides."],
-      ["Respiration / relâchement", "1", "5 min", "Quelques minutes de respiration profonde et de relâchement musculaire pour faire baisser le stress et améliorer la récupération."],
+      ["Marche légère (20-30 min)", "1", "20-30 min", "Une marche à allure tranquille sur tapis ou en extérieur pour favoriser la récupération et continuer à brûler des calories sans fatiguer davantage le corps.", "walk", []],
+      ["Étirements complets", "1", "10-15 min", "Étire les principaux groupes musculaires sollicités dans la semaine (pecs, dos, jambes) pour préserver la souplesse, réduire les tensions et améliorer la définition visuelle des muscles au repos.", "stretch", ["pecs","dos","quadriceps"]],
+      ["Mobilité hanches / épaules", "1", "10 min", "Mouvements circulaires et amplitudes contrôlées pour entretenir la mobilité des hanches et des épaules, souvent raides et essentielles pour bien exécuter Squat, Chest Press et Lat Pulldown.", "mobility", ["epaules","fessiersischios"]],
+      ["Respiration / relâchement", "1", "5 min", "Quelques minutes de respiration profonde et de relâchement musculaire pour faire baisser le stress, le cortisol et améliorer la récupération — un allié pour perdre le gras qui masque les abdos.", "breathing", []],
     ]
   }
 };
@@ -224,6 +228,7 @@ const CATEGORY_META = {
   legs:      { label: "Jambes",          stat: "force",      page: "legs.html" },
   cardio:    { label: "Cardio & Abdos",  stat: "endurance",  page: "cardio.html" },
   mobility:  { label: "Mobilité",        stat: "vitalite",   page: "mobility.html" },
+  libre:     { label: "Séance libre",    stat: "discipline", page: "custom.html" },
   nutrition: { label: "Provisions",      stat: "vitalite",   page: "nutrition.html" }
 };
 
@@ -233,6 +238,7 @@ const DASHBOARD_CARDS = [
   { key: "legs",       label: "Jambes",          page: "legs.html",      tag: "Bas du corps" },
   { key: "cardio",     label: "Cardio & Abdos",  page: "cardio.html",    tag: "Endurance" },
   { key: "mobility",   label: "Mobilité",        page: "mobility.html",  tag: "Récupération" },
+  { key: "libre",      label: "Séance libre",    page: "custom.html",    tag: "Improvise ta quête" },
   { key: "nutrition",  label: "Provisions",      page: "nutrition.html", tag: "Nutrition" }
 ];
 
@@ -244,6 +250,7 @@ const NAV_PAGES = [
   { key: "cardio",    label: "Cardio",      page: "cardio.html" },
   { key: "mobility",  label: "Mobilité",    page: "mobility.html" },
   { key: "corps",     label: "Corps",       page: "corps.html" },
+  { key: "custom",    label: "Séance libre",page: "custom.html" },
   { key: "nutrition", label: "Provisions",  page: "nutrition.html" }
 ];
 
@@ -261,6 +268,8 @@ function defaultState(){
     firstLogDate: null,
     totalXPEarned: 0,
     records: {},
+    groceryList: [],
+    stock: {},
     log: [],
     updatedAt: new Date().toISOString()
   };
@@ -302,6 +311,8 @@ async function loadState(){
 
     state = saved || defaultState();
     if(!state.records) state.records = {};
+    if(!state.groceryList) state.groceryList = [];
+    if(!state.stock) state.stock = {};
     if(state.firstLogDate === undefined) state.firstLogDate = null;
     if(state.totalXPEarned === undefined) state.totalXPEarned = 0;
     if(!state.updatedAt) state.updatedAt = new Date().toISOString();
@@ -471,6 +482,118 @@ function logNutritionDay(objectifRespecte, proteinesRespectees, eauLitres){
   return { xpGain, leveledUp };
 }
 
+/* =========================================================
+   SÉANCE LIBRE — l'utilisateur renseigne ce qu'il a fait,
+   on reconnaît les exercices connus (Chest Press, Squat...)
+   et on évalue la séance (zones travaillées, XP, records).
+   ========================================================= */
+
+function buildExerciseIndex(){
+  const idx = {};
+  Object.keys(PROGRAM).forEach(catKey => {
+    const cat = normalizeCategory(catKey);
+    PROGRAM[catKey].exos.forEach(exo => {
+      const [name, sets, reps, desc, machine, zones] = exo;
+      idx[name.toLowerCase()] = { name, category: cat, zones: zones || [], machine: machine || null };
+    });
+  });
+  return idx;
+}
+const EXERCISE_INDEX = buildExerciseIndex();
+
+function allExerciseNames(){
+  return Object.values(EXERCISE_INDEX).map(e => e.name);
+}
+
+function findExerciseMatch(inputName){
+  if(!inputName) return null;
+  const key = inputName.trim().toLowerCase();
+  if(!key) return null;
+  if(EXERCISE_INDEX[key]) return EXERCISE_INDEX[key];
+  let found = null;
+  Object.keys(EXERCISE_INDEX).forEach(k => {
+    if(found) return;
+    if(k.includes(key) || key.includes(k)) found = EXERCISE_INDEX[k];
+  });
+  return found;
+}
+
+function evaluateCustomSession(rows, effort){
+  const cleanRows = (rows || []).filter(r => r.name && r.name.trim());
+  const total = cleanRows.length;
+  const zoneCounts = {};
+  const categoryCounts = {};
+  const unmatched = [];
+  let prCount = 0;
+
+  cleanRows.forEach(r => {
+    const match = findExerciseMatch(r.name);
+    const cat = match ? match.category : "libre";
+    categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+    (match ? match.zones : []).forEach(z => { zoneCounts[z] = (zoneCounts[z] || 0) + 1; });
+    if(!match) unmatched.push(r.name.trim());
+
+    if(r.weight){
+      const slug = match ? (match.category + "__" + slugify(match.name)) : ("libre__" + slugify(r.name.trim()));
+      const rec = state.records[slug];
+      if(!rec || r.weight > rec.weight){
+        state.records[slug] = { name: match ? match.name : r.name.trim(), weight: r.weight, reps: r.reps || null, date: new Date().toISOString() };
+        prCount++;
+      }
+    }
+  });
+
+  const effortMult = effort === 3 ? 1.3 : effort === 2 ? 1.1 : 1;
+
+  if(total > 0){
+    Object.keys(categoryCounts).forEach(cat => {
+      const weight = categoryCounts[cat] / total;
+      const gains = cat === "libre" ? { force:1, endurance:1, vitalite:1, discipline:1 } : statGainsFor(cat);
+      Object.keys(gains).forEach(k => {
+        state.stats[k] = Math.min(statCap(), state.stats[k] + Math.round(gains[k] * weight * effortMult));
+      });
+    });
+  }
+  if(prCount > 0){
+    state.stats.force = Math.min(statCap(), state.stats.force + prCount * 2);
+  }
+
+  updateStreak();
+  const baseXP = 12 * total;
+  const xpGain = Math.round(baseXP * effortMult) + prCount * 8;
+  const leveledUp = applyXP(xpGain);
+  state.totalSessions += 1;
+
+  const sortedZones = Object.keys(zoneCounts).sort((a,b) => zoneCounts[b] - zoneCounts[a]);
+  const zoneLabel = sortedZones.map(z => ZONE_EXERCISES[z] ? ZONE_EXERCISES[z].label : z).join(", ") || "aucune zone reconnue";
+
+  state.log.push({
+    category: "libre",
+    label: `Séance libre — ${total} exercice${total>1?"s":""} (${zoneLabel})`,
+    date: new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric' }),
+    xp: xpGain
+  });
+
+  saveState();
+  return { xpGain, prCount, leveledUp, total, zoneCounts, categoryCounts, unmatched, zoneLabel };
+}
+
+function renderCustomResultSummary(elId, result){
+  const el = document.getElementById(elId);
+  const zoneKeys = Object.keys(result.zoneCounts);
+  el.innerHTML = `
+    <div class="exo-head" style="margin-bottom:6px;">
+      <div class="exo-pr" style="font-size:15px;">+${result.xpGain} XP${result.prCount ? " · "+result.prCount+" record(s) !" : ""}</div>
+      <div class="exo-target">${result.total} exercice${result.total>1?"s":""} évalué${result.total>1?"s":""}</div>
+    </div>
+    <div class="bodymap-wrap" id="custom-bodymap" style="max-width:280px; margin:14px auto;"></div>
+    <div class="exo-desc">Zones travaillées : ${result.zoneLabel}</div>
+    ${result.unmatched.length ? `<div class="exo-desc" style="color:var(--parchment-dim);">Exercices non reconnus (comptés comme "libres", gains génériques) : ${result.unmatched.join(", ")}</div>` : ""}
+  `;
+  document.getElementById("custom-bodymap").innerHTML = bodyMapSVG();
+  highlightBodyZones("custom-bodymap", zoneKeys);
+}
+
 async function resetCharacter(){
   if(confirm("Effacer toute la progression de ce personnage ? Cette action est irréversible.")){
     state = defaultState();
@@ -567,10 +690,24 @@ function showSimpleToast(msg){
 function buildExerciseInputs(containerId, categoryKey){
   const container = document.getElementById(containerId);
   const program = PROGRAM[categoryKey];
-  container.innerHTML = program.exos.map(([name, sets, reps, desc]) => {
+  container.innerHTML = program.exos.map(([name, sets, reps, desc, machine, zones]) => {
     const slug = categoryKey + "__" + slugify(name);
     const rec = state.records[slug];
     const prText = rec ? `Record : ${rec.weight}kg${rec.reps ? ' x '+rec.reps : ''}` : "Pas encore de record";
+    const zoneLabels = (zones || []).map(z => ZONE_EXERCISES[z] ? ZONE_EXERCISES[z].label : z).join(" · ");
+    const mediaHtml = (machine || (zones && zones.length)) ? `
+      <div class="exo-media">
+        ${machine ? `
+          <div class="exo-icon-wrap">
+            <div class="exo-icon" title="${machineLabel(machine)}">${machineIconSVG(machine)}</div>
+            <div class="exo-icon-label">${machineLabel(machine)}</div>
+          </div>` : ""}
+        ${zones && zones.length ? `
+          <div class="exo-zonemap" title="Zone travaillée : ${zoneLabels}">
+            ${zoneThumbSVG(zones)}
+            <span>Zone travaillée :<br>${zoneLabels}</span>
+          </div>` : ""}
+      </div>` : "";
     return `
       <div class="exo-card" data-slug="${slug}">
         <div class="exo-head">
@@ -581,6 +718,7 @@ function buildExerciseInputs(containerId, categoryKey){
           </div>
           <div class="exo-pr">${prText}</div>
         </div>
+        ${mediaHtml}
         <div class="exo-inputs">
           <div class="field">
             <label>Poids (kg)</label>
@@ -773,6 +911,211 @@ const INGREDIENT_INFO = {
   "pomme": { cat: "Fruits & légumes" },
   "kiwi": { cat: "Fruits & légumes" },
 };
+
+/* =========================================================
+   GÉNÉRATEUR DE REPAS — tu choisis la protéine, on propose
+   féculent + légume + assaisonnement, et on alimente une
+   liste de courses cumulée (avec quantités).
+   ========================================================= */
+
+const MEAL_PROTEINS = [
+  { key:"poulet",       name:"Poulet (blanc / filet)",     cat:"Viande",         qty:150, unit:"g" },
+  { key:"dinde",        name:"Dinde (escalope)",           cat:"Viande",         qty:150, unit:"g" },
+  { key:"boeuf-hache",  name:"Bœuf haché 5%",              cat:"Viande",         qty:150, unit:"g" },
+  { key:"boeuf-steak",  name:"Steak de bœuf",              cat:"Viande",         qty:150, unit:"g" },
+  { key:"porc",         name:"Filet mignon de porc",       cat:"Viande",         qty:150, unit:"g" },
+  { key:"saumon",       name:"Saumon",                     cat:"Poisson",        qty:150, unit:"g" },
+  { key:"cabillaud",    name:"Cabillaud",                  cat:"Poisson",        qty:150, unit:"g" },
+  { key:"thon",         name:"Thon (frais ou en boîte)",   cat:"Poisson",        qty:150, unit:"g" },
+  { key:"truite",       name:"Truite",                     cat:"Poisson",        qty:150, unit:"g" },
+  { key:"crevettes",    name:"Crevettes",                  cat:"Poisson",        qty:150, unit:"g" },
+  { key:"maquereau",    name:"Maquereau",                  cat:"Poisson",        qty:150, unit:"g" },
+  { key:"oeufs",        name:"Œufs",                       cat:"Œuf / Végétal",  qty:3,   unit:"unités" },
+  { key:"tofu",         name:"Tofu",                       cat:"Œuf / Végétal",  qty:150, unit:"g" },
+  { key:"pois-chiches", name:"Pois chiches (cuits)",       cat:"Œuf / Végétal",  qty:150, unit:"g" },
+  { key:"lentilles",    name:"Lentilles (cuites)",         cat:"Œuf / Végétal",  qty:150, unit:"g" },
+];
+
+const MEAL_STARCHES = [
+  { name:"Riz complet",        qty:60,  unit:"g (cru)" },
+  { name:"Riz basmati",        qty:60,  unit:"g (cru)" },
+  { name:"Quinoa",             qty:60,  unit:"g (cru)" },
+  { name:"Pâtes complètes",    qty:70,  unit:"g (crues)" },
+  { name:"Patate douce",       qty:200, unit:"g" },
+  { name:"Pomme de terre",     qty:200, unit:"g" },
+  { name:"Semoule complète",   qty:60,  unit:"g (crue)" },
+  { name:"Boulgour",           qty:60,  unit:"g (cru)" },
+  { name:"Pain complet",       qty:2,   unit:"tranches" },
+];
+
+const MEAL_VEGETABLES = [
+  { name:"Brocolis",              qty:150, unit:"g" },
+  { name:"Haricots verts",        qty:150, unit:"g" },
+  { name:"Épinards",              qty:150, unit:"g" },
+  { name:"Courgettes",            qty:200, unit:"g" },
+  { name:"Poivrons",              qty:150, unit:"g" },
+  { name:"Carottes",              qty:150, unit:"g" },
+  { name:"Salade verte",          qty:80,  unit:"g" },
+  { name:"Champignons",           qty:150, unit:"g" },
+  { name:"Asperges",              qty:150, unit:"g" },
+  { name:"Ratatouille (mélange)", qty:200, unit:"g" },
+  { name:"Tomates cerises",       qty:100, unit:"g" },
+];
+
+// Assaisonnements : huile d'olive et skyr en base (comme demandé), + quelques
+// alliés classiques d'une alimentation riche en protéines et peu transformée.
+const MEAL_SEASONINGS = [
+  { name:"Huile d'olive",             qty:1,   unit:"c. à soupe", cat:"Épicerie" },
+  { name:"Skyr nature (en sauce)",    qty:50,  unit:"g",          cat:"Produits laitiers" },
+  { name:"Citron (jus)",              qty:0.5, unit:"unité",      cat:"Fruits & légumes" },
+  { name:"Vinaigre balsamique",       qty:1,   unit:"c. à soupe", cat:"Épicerie" },
+  { name:"Moutarde",                  qty:1,   unit:"c. à café",  cat:"Épicerie" },
+  { name:"Herbes de Provence",        qty:1,   unit:"pincée",     cat:"Épicerie" },
+  { name:"Ail + persil",              qty:1,   unit:"gousse",     cat:"Fruits & légumes" },
+  { name:"Sauce soja légère",         qty:1,   unit:"c. à soupe", cat:"Épicerie" },
+  { name:"Épices (paprika / cumin)",  qty:1,   unit:"pincée",     cat:"Épicerie" },
+];
+
+function pickRandom(arr, excludeName){
+  const pool = excludeName ? arr.filter(x => x.name !== excludeName) : arr;
+  const source = pool.length ? pool : arr;
+  return source[Math.floor(Math.random() * source.length)];
+}
+
+function generateMeal(proteinKey){
+  const protein = MEAL_PROTEINS.find(p => p.key === proteinKey);
+  if(!protein) return null;
+  return {
+    protein,
+    starch: pickRandom(MEAL_STARCHES),
+    vegetable: pickRandom(MEAL_VEGETABLES),
+    seasoning: pickRandom(MEAL_SEASONINGS),
+  };
+}
+
+function addGroceryItem(item){
+  if(!state.groceryList) state.groceryList = [];
+  const existing = state.groceryList.find(g => g.name === item.name && g.unit === item.unit);
+  if(existing){ existing.qty += item.qty; }
+  else { state.groceryList.push({ ...item }); }
+}
+
+function addMealToGroceryList(meal, servings){
+  const s = servings > 0 ? servings : 1;
+  addGroceryItem({ name: meal.protein.name,   qty: meal.protein.qty * s,   unit: meal.protein.unit,   cat: "Protéines" });
+  addGroceryItem({ name: meal.starch.name,    qty: meal.starch.qty * s,    unit: meal.starch.unit,    cat: "Féculents" });
+  addGroceryItem({ name: meal.vegetable.name, qty: meal.vegetable.qty * s, unit: meal.vegetable.unit, cat: "Fruits & légumes" });
+  addGroceryItem({ name: meal.seasoning.name, qty: meal.seasoning.qty * s, unit: meal.seasoning.unit, cat: meal.seasoning.cat || "Épicerie" });
+  saveState();
+}
+
+function removeGroceryItem(index){
+  state.groceryList.splice(index, 1);
+  saveState();
+}
+
+function clearGroceryList(){
+  state.groceryList = [];
+  saveState();
+}
+
+const GROCERY_CAT_ORDER = ["Protéines", "Féculents", "Fruits & légumes", "Produits laitiers", "Épicerie"];
+
+function generateGroceryListText(){
+  const byCat = {};
+  (state.groceryList || []).forEach(it => {
+    if(!byCat[it.cat]) byCat[it.cat] = [];
+    byCat[it.cat].push(it);
+  });
+  let out = `LISTE DE COURSES — Saga du Viking\n\n`;
+  GROCERY_CAT_ORDER.forEach(cat => {
+    if(!byCat[cat] || !byCat[cat].length) return;
+    out += `== ${cat.toUpperCase()} ==\n`;
+    byCat[cat].forEach(it => {
+      const qtyDisplay = Number.isInteger(it.qty) ? it.qty : it.qty.toFixed(1);
+      out += `[ ] ${it.name} — ${qtyDisplay} ${it.unit}\n`;
+    });
+    out += `\n`;
+  });
+  out += `— Saga du Viking —\n`;
+  return out;
+}
+
+function downloadGroceryList(){
+  downloadTextFile("liste-de-courses.txt", generateGroceryListText());
+}
+
+/* =========================================================
+   ÉTAT DES STOCKS — inventaire du garde-manger, entièrement
+   piloté par l'utilisateur (ajout manuel, ou transfert depuis
+   la liste de courses une fois les achats faits).
+   ========================================================= */
+
+function buildFoodReference(){
+  const ref = {};
+  MEAL_PROTEINS.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: "Protéines" });
+  MEAL_STARCHES.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: "Féculents" });
+  MEAL_VEGETABLES.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: "Fruits & légumes" });
+  MEAL_SEASONINGS.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: p.cat || "Épicerie" });
+  return ref;
+}
+const FOOD_REFERENCE = buildFoodReference();
+
+function allFoodNames(){
+  return Object.keys(FOOD_REFERENCE);
+}
+
+function setStockQty(name, qty){
+  if(!state.stock) state.stock = {};
+  const ref = FOOD_REFERENCE[name];
+  if(qty <= 0){
+    delete state.stock[name];
+  } else {
+    state.stock[name] = { qty, unit: (state.stock[name] && state.stock[name].unit) || (ref ? ref.unit : ""), cat: (ref ? ref.cat : "Épicerie") };
+  }
+  saveState();
+}
+
+function addToStockQty(name, qty, unit, cat){
+  if(!state.stock) state.stock = {};
+  if(!state.stock[name]){
+    state.stock[name] = { qty: 0, unit: unit || (FOOD_REFERENCE[name] ? FOOD_REFERENCE[name].unit : ""), cat: cat || (FOOD_REFERENCE[name] ? FOOD_REFERENCE[name].cat : "Épicerie") };
+  }
+  state.stock[name].qty += qty;
+}
+
+function removeStockItem(name){
+  if(!state.stock) return;
+  delete state.stock[name];
+  saveState();
+}
+
+function markShoppingDone(){
+  (state.groceryList || []).forEach(it => addToStockQty(it.name, it.qty, it.unit, it.cat));
+  state.groceryList = [];
+  saveState();
+}
+
+function stockLevel(name){
+  const stock = state.stock && state.stock[name];
+  const ref = FOOD_REFERENCE[name];
+  if(!stock) return "absent";
+  if(stock.qty <= 0) return "epuise";
+  if(ref && stock.qty < ref.qty) return "bas";
+  return "ok";
+}
+
+function stockRows(){
+  const rows = Object.keys(state.stock || {}).map(name => ({
+    name,
+    qty: state.stock[name].qty,
+    unit: state.stock[name].unit,
+    cat: state.stock[name].cat,
+    level: stockLevel(name)
+  }));
+  const levelOrder = { epuise: 0, bas: 1, ok: 2 };
+  return rows.sort((a,b) => levelOrder[a.level] - levelOrder[b.level] || a.name.localeCompare(b.name));
+}
 
 const WEEKLY_MENUS = [
   { name: "Semaine du Forgeron",
@@ -979,15 +1322,15 @@ function generateShoppingListText(weekIndex){
    ========================================================= */
 
 const ZONE_EXERCISES = {
-  epaules:        { label: "Épaules",          view: "front", exos: ["Développé militaire haltères", "Élévations latérales", "Développé Arnold", "Face pull"] },
-  pecs:           { label: "Pectoraux",        view: "front", exos: ["Développé couché", "Développé incliné haltères", "Écarté couché / pec deck", "Dips"] },
-  biceps:         { label: "Biceps",           view: "front", exos: ["Curl barre EZ", "Curl marteau", "Curl unilatéral"] },
-  abdos:          { label: "Abdominaux",       view: "front", exos: ["Crunch", "Relevé de jambes", "Gainage planche", "Mountain climbers"] },
-  quadriceps:     { label: "Quadriceps",       view: "front", exos: ["Squat", "Fentes marchées", "Presse à cuisses"] },
-  dos:            { label: "Dos",              view: "back",  exos: ["Tractions", "Rowing barre / haltère", "Tirage vertical", "Tirage horizontal poulie"] },
-  triceps:        { label: "Triceps",          view: "back",  exos: ["Extensions triceps poulie", "Dips", "Extensions nuque"] },
-  fessiersischios:{ label: "Fessiers & Ischios", view: "back", exos: ["Soulevé de terre roumain", "Pont fessier", "Leg curl"] },
-  mollets:        { label: "Mollets",          view: "back",  exos: ["Mollets debout", "Mollets assis"] },
+  epaules:        { label: "Épaules",          view: "front", exos: ["Shoulder Press (développé épaules guidé)", "Élévations latérales (haltères)", "Développé Arnold (haltères)", "Rear Delt Fly (pec deck en position inversée)", "Face pull (poulie double)"] },
+  pecs:           { label: "Pectoraux",        view: "front", exos: ["Chest Press (développé assis guidé)", "Développé incliné haltères (banc inclinable)", "Pec Fly / Écarté (pec deck)", "Développé serré à la Smith Machine"] },
+  biceps:         { label: "Biceps",           view: "front", exos: ["Biceps Curl (machine pupitre)", "Curl marteau (haltères)", "Rowing unilatéral à la poulie basse"] },
+  abdos:          { label: "Abdominaux",       view: "front", exos: ["Abdominal Crunch (machine guidée)", "Relevé de jambes suspendu", "Gainage planche + Mountain climbers"] },
+  quadriceps:     { label: "Quadriceps",       view: "front", exos: ["Squat (Cage à squat / Smith Machine)", "Leg Press (presse à cuisses)", "Leg Extension (machine)"] },
+  dos:            { label: "Dos",              view: "back",  exos: ["Lat Pulldown (tirage vertical poulie haute)", "Seated Row (tirage horizontal assis)", "Tirage poulie basse prise serrée", "Back Extension (machine)"] },
+  triceps:        { label: "Triceps",          view: "back",  exos: ["Extension triceps à la poulie haute", "Développé serré à la Smith Machine", "Extension triceps nuque (haltère)"] },
+  fessiersischios:{ label: "Fessiers & Ischios", view: "back", exos: ["Leg Press (presse à cuisses)", "Seated Leg Curl (ischios, machine)", "Squat (Cage à squat / Smith Machine)"] },
+  mollets:        { label: "Mollets",          view: "back",  exos: ["Mollets debout (machine ou Smith Machine)"] },
 };
 
 const CATEGORY_ZONES = {
@@ -999,6 +1342,90 @@ const CATEGORY_ZONES = {
   cardio: ["abdos"],
   mobility: []
 };
+
+/* ---------- Icônes machines (pictogrammes stylisés, salle de sport) ---------- */
+const MACHINE_ICONS = {
+  treadmill:   { label: "Cardio (tapis/vélo/rameur/escaliers)",
+    body: `<rect x="8" y="40" width="40" height="9" rx="4"/><line x1="40" y1="40" x2="48" y2="14"/><rect x="44" y="9" width="12" height="7" rx="2"/><path d="M14 30 q6 -9 12 0 q6 9 12 0" stroke-dasharray="3 3"/>` },
+  "chest-press": { label: "Chest Press (machine guidée)",
+    body: `<circle cx="16" cy="16" r="6"/><path d="M16 22 v14"/><rect x="10" y="34" width="12" height="14" rx="2"/><path d="M22 26 h20"/><path d="M36 22 l6 4 l-6 4"/><line x1="10" y1="48" x2="26" y2="48"/>` },
+  "shoulder-press": { label: "Shoulder Press (machine guidée)",
+    body: `<circle cx="32" cy="14" r="6"/><path d="M32 20 v16"/><rect x="26" y="36" width="12" height="14" rx="2"/><path d="M20 24 v-10"/><path d="M44 24 v-10"/><path d="M14 12 l6 -6 l0 8"/><path d="M50 12 l-6 -6 l0 8"/>` },
+  "pec-fly": { label: "Pec Fly / Écarté (pec deck)",
+    body: `<circle cx="32" cy="14" r="6"/><rect x="26" y="22" width="12" height="16" rx="2"/><path d="M26 26 q-14 4 -16 14"/><path d="M38 26 q14 4 16 14"/><path d="M12 42 l-4 4 l4 2" transform="translate(0,-2)"/>` },
+  "lat-pulldown": { label: "Lat Pulldown (poulie haute)",
+    body: `<line x1="10" y1="10" x2="54" y2="10"/><line x1="32" y1="10" x2="32" y2="16"/><path d="M18 16 q14 8 28 0" stroke-dasharray="2 3"/><circle cx="32" cy="26" r="6"/><rect x="26" y="34" width="12" height="16" rx="2"/><path d="M20 20 l-6 10"/><path d="M44 20 l6 10"/>` },
+  "seated-row": { label: "Seated Row (tirage horizontal)",
+    body: `<circle cx="42" cy="16" r="6"/><rect x="36" y="24" width="12" height="14" rx="2"/><line x1="8" y1="34" x2="36" y2="34"/><path d="M10 26 l6 4 l-6 4"/><line x1="20" y1="20" x2="36" y2="30"/>` },
+  "leg-press": { label: "Leg Press (presse à cuisses)",
+    body: `<rect x="8" y="34" width="16" height="14" rx="2"/><circle cx="16" cy="24" r="6"/><path d="M24 40 l24 -10"/><rect x="46" y="20" width="8" height="20" rx="2"/><path d="M40 30 l6 -3 l1 6"/>` },
+  "leg-extension": { label: "Leg Extension (machine)",
+    body: `<circle cx="18" cy="12" r="6"/><rect x="12" y="20" width="12" height="16" rx="2"/><line x1="18" y1="36" x2="18" y2="46"/><line x1="18" y1="46" x2="40" y2="46"/><path d="M40 46 l6 -10"/><path d="M40 40 l6 2 l-2 6"/>` },
+  "leg-curl": { label: "Leg Curl (ischios, machine)",
+    body: `<circle cx="46" cy="12" r="6"/><rect x="40" y="20" width="12" height="16" rx="2"/><line x1="46" y1="36" x2="46" y2="46"/><line x1="46" y1="46" x2="20" y2="46"/><path d="M20 46 l-4 -10"/><path d="M20 40 l-5 3 l2 6"/>` },
+  "smith-machine": { label: "Smith Machine / Cage à squat",
+    body: `<line x1="12" y1="8" x2="12" y2="52"/><line x1="52" y1="8" x2="52" y2="52"/><line x1="10" y1="24" x2="54" y2="24"/><circle cx="32" cy="14" r="6"/><rect x="26" y="34" width="12" height="16" rx="2"/><path d="M20 40 v6"/><path d="M44 40 v6"/>` },
+  "cable-pulley": { label: "Poulie / Cable Crossover",
+    body: `<line x1="10" y1="8" x2="10" y2="30"/><circle cx="10" cy="8" r="4"/><line x1="54" y1="8" x2="54" y2="30"/><circle cx="54" cy="8" r="4"/><circle cx="32" cy="16" r="6"/><rect x="26" y="24" width="12" height="14" rx="2"/><path d="M14 12 q14 20 16 22"/><path d="M50 12 q-14 20 -16 22"/>` },
+  "abdominal-crunch": { label: "Abdominal Crunch (machine)",
+    body: `<circle cx="14" cy="34" r="6"/><path d="M14 40 q10 4 16 -4"/><rect x="30" y="30" width="14" height="10" rx="2"/><path d="M44 22 q6 4 4 12" stroke-dasharray="2 3"/>` },
+  "back-extension": { label: "Back Extension (machine)",
+    body: `<line x1="10" y1="44" x2="46" y2="44"/><circle cx="40" cy="24" r="6"/><path d="M40 30 q-10 6 -12 14"/><path d="M18 40 q0 -8 -4 -14" stroke-dasharray="2 3"/>` },
+  dumbbell: { label: "Haltères / poids libres",
+    body: `<rect x="6" y="26" width="8" height="12" rx="2"/><rect x="50" y="26" width="8" height="12" rx="2"/><line x1="14" y1="32" x2="50" y2="32"/><circle cx="30" cy="14" r="6"/><rect x="24" y="20" width="12" height="14" rx="2"/>` },
+  bench: { label: "Sol / tapis (poids du corps)",
+    body: `<rect x="8" y="40" width="48" height="6" rx="2"/><circle cx="20" cy="22" r="6"/><path d="M20 28 q10 4 16 0"/><path d="M20 30 l-8 10"/><path d="M36 28 l8 8"/>` },
+  walk: { label: "Marche (récupération active)",
+    body: `<circle cx="26" cy="10" r="5"/><path d="M26 15 v14"/><path d="M26 22 l-10 6"/><path d="M26 22 l12 4"/><path d="M26 29 l-8 16"/><path d="M26 29 l10 15"/><path d="M40 12 q6 2 8 8" stroke-dasharray="2 3"/>` },
+  stretch: { label: "Étirement",
+    body: `<circle cx="20" cy="12" r="6"/><path d="M20 18 v16"/><path d="M20 22 q16 -4 22 -16"/><path d="M20 34 l-8 14"/><path d="M20 34 l10 14"/><path d="M40 4 q2 4 2 -2" opacity="0"/>` },
+  mobility: { label: "Mobilité articulaire",
+    body: `<circle cx="32" cy="14" r="6"/><path d="M32 20 v14"/><path d="M20 26 h24"/><path d="M20 40 l0 -6"/><path d="M44 40 l0 -6"/><circle cx="32" cy="34" r="16" fill="none" stroke-dasharray="3 4"/>` },
+  breathing: { label: "Respiration / relâchement",
+    body: `<circle cx="32" cy="32" r="8"/><circle cx="32" cy="32" r="16" stroke-dasharray="3 4"/><circle cx="32" cy="32" r="24" stroke-dasharray="2 6" opacity="0.6"/>` },
+};
+
+function machineIconSVG(key){
+  const entry = MACHINE_ICONS[key] || MACHINE_ICONS.dumbbell;
+  return `<svg viewBox="0 0 64 64" width="40" height="40" fill="none" stroke="var(--gold-bright)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${entry.body}</svg>`;
+}
+
+function machineLabel(key){
+  const entry = MACHINE_ICONS[key];
+  return entry ? entry.label : "";
+}
+
+/* ---------- Mini carte corps par exercice (zone(s) ciblée(s)) ---------- */
+function zoneThumbSVG(zoneKeys){
+  if(!zoneKeys || zoneKeys.length === 0) return "";
+  const first = ZONE_EXERCISES[zoneKeys[0]];
+  const isFront = !first || first.view === "front";
+  const fill = (z) => zoneKeys.includes(z) ? "var(--ember-bright)" : "var(--iron-light)";
+  if(isFront){
+    return `<svg viewBox="0 0 100 130" width="40" height="52">
+      <circle cx="50" cy="16" r="12" fill="var(--iron-light)"/>
+      <rect x="28" y="30" width="44" height="58" rx="12" fill="var(--iron)"/>
+      <circle cx="24" cy="38" r="9" fill="${fill('epaules')}"/>
+      <circle cx="76" cy="38" r="9" fill="${fill('epaules')}"/>
+      <rect x="34" y="36" width="32" height="20" rx="5" fill="${fill('pecs')}"/>
+      <rect x="35" y="58" width="30" height="28" rx="5" fill="${fill('abdos')}"/>
+      <rect x="14" y="42" width="9" height="28" rx="4" fill="${fill('biceps')}"/>
+      <rect x="77" y="42" width="9" height="28" rx="4" fill="${fill('biceps')}"/>
+      <rect x="33" y="88" width="15" height="36" rx="6" fill="${fill('quadriceps')}"/>
+      <rect x="52" y="88" width="15" height="36" rx="6" fill="${fill('quadriceps')}"/>
+    </svg>`;
+  }
+  return `<svg viewBox="0 0 100 130" width="40" height="52">
+    <circle cx="50" cy="16" r="12" fill="var(--iron-light)"/>
+    <rect x="28" y="30" width="44" height="58" rx="12" fill="var(--iron)"/>
+    <rect x="34" y="34" width="32" height="40" rx="8" fill="${fill('dos')}"/>
+    <rect x="14" y="42" width="9" height="28" rx="4" fill="${fill('triceps')}"/>
+    <rect x="77" y="42" width="9" height="28" rx="4" fill="${fill('triceps')}"/>
+    <rect x="30" y="88" width="40" height="24" rx="8" fill="${fill('fessiersischios')}"/>
+    <rect x="33" y="112" width="15" height="20" rx="6" fill="${fill('mollets')}"/>
+    <rect x="52" y="112" width="15" height="20" rx="6" fill="${fill('mollets')}"/>
+  </svg>`;
+}
 
 function bodyMapSVG(){
   return `
