@@ -270,6 +270,7 @@ function defaultState(){
     records: {},
     groceryList: [],
     stock: {},
+    supplements: defaultSupplementsState(),
     log: [],
     updatedAt: new Date().toISOString()
   };
@@ -313,6 +314,7 @@ async function loadState(){
     if(!state.records) state.records = {};
     if(!state.groceryList) state.groceryList = [];
     if(!state.stock) state.stock = {};
+    if(!state.supplements) state.supplements = defaultSupplementsState();
     if(state.firstLogDate === undefined) state.firstLogDate = null;
     if(state.totalXPEarned === undefined) state.totalXPEarned = 0;
     if(!state.updatedAt) state.updatedAt = new Date().toISOString();
@@ -626,6 +628,10 @@ function renderNav(activeKey){
       </div>`;
   }
 
+  const MUSCU_KEYS = ["push","pull","legs","cardio","mobility"];
+  const musculAactive = MUSCU_KEYS.includes(activeKey);
+  const plusActive = ["corps"].includes(activeKey);
+
   return `
     <div class="topnav">
       <div class="topnav-inner">
@@ -634,7 +640,44 @@ function renderNav(activeKey){
         ${accountHtml}
       </div>
     </div>
+
+    <div class="mobile-topbar">
+      <a class="brand" href="index.html">⚔ SAGA DU VIKING</a>
+      <button class="mobile-menu-btn" onclick="toggleMobileDrawer()">☰</button>
+    </div>
+
+    <div class="mobile-drawer-overlay" id="mobile-drawer-overlay" onclick="closeMobileDrawer()"></div>
+    <div class="mobile-drawer" id="mobile-drawer">
+      <button class="mobile-drawer-close" onclick="closeMobileDrawer()">✕ Fermer</button>
+      <div class="mobile-drawer-links">${links}</div>
+      <div class="mobile-drawer-account">${accountHtml}</div>
+    </div>
+
+    <div class="bottom-tabbar">
+      <a class="tab-item ${activeKey === 'index' ? 'active' : ''}" href="index.html"><span class="tab-icon">🏠</span><span>Tableau</span></a>
+      <a class="tab-item ${musculAactive ? 'active' : ''}" href="push.html"><span class="tab-icon">💪</span><span>Muscu</span></a>
+      <a class="tab-item ${activeKey === 'custom' ? 'active' : ''}" href="custom.html"><span class="tab-icon">⚔</span><span>Libre</span></a>
+      <a class="tab-item ${activeKey === 'nutrition' ? 'active' : ''}" href="nutrition.html"><span class="tab-icon">🍽</span><span>Repas</span></a>
+      <button class="tab-item ${plusActive ? 'active' : ''}" onclick="toggleMobileDrawer()"><span class="tab-icon">☰</span><span>Plus</span></button>
+    </div>
   `;
+}
+
+function toggleMobileDrawer(){
+  const drawer = document.getElementById("mobile-drawer");
+  const overlay = document.getElementById("mobile-drawer-overlay");
+  if(!drawer || !overlay) return;
+  const opening = !drawer.classList.contains("open");
+  drawer.classList.toggle("open", opening);
+  overlay.classList.toggle("open", opening);
+}
+
+function closeMobileDrawer(){
+  const drawer = document.getElementById("mobile-drawer");
+  const overlay = document.getElementById("mobile-drawer-overlay");
+  if(!drawer || !overlay) return;
+  drawer.classList.remove("open");
+  overlay.classList.remove("open");
 }
 
 function renderMiniBar(){
@@ -976,6 +1019,27 @@ const MEAL_SEASONINGS = [
   { name:"Épices (paprika / cumin)",  qty:1,   unit:"pincée",     cat:"Épicerie" },
 ];
 
+// Petit-déjeuner : une base protéinée + un accompagnement, choisis manuellement.
+const BREAKFAST_BASES = [
+  { name:"Skyr nature",                                  qty:200, unit:"g",       cat:"Produits laitiers" },
+  { name:"Fromage blanc 0%",                             qty:200, unit:"g",       cat:"Produits laitiers" },
+  { name:"Yaourt grec",                                  qty:200, unit:"g",       cat:"Produits laitiers" },
+  { name:"Cottage cheese",                               qty:200, unit:"g",       cat:"Produits laitiers" },
+  { name:"Pancakes protéinés (œufs + flocons + skyr)",   qty:3,   unit:"pancakes",cat:"Protéines" },
+  { name:"Œufs brouillés",                               qty:3,   unit:"unités",  cat:"Protéines" },
+];
+
+const BREAKFAST_TOPPINGS = [
+  { name:"Flocons d'avoine",       qty:40,  unit:"g",          cat:"Épicerie" },
+  { name:"Granola",                qty:30,  unit:"g",          cat:"Épicerie" },
+  { name:"Fruits rouges",          qty:100, unit:"g",          cat:"Fruits & légumes" },
+  { name:"Myrtilles",              qty:80,  unit:"g",          cat:"Fruits & légumes" },
+  { name:"Banane",                 qty:1,   unit:"unité",      cat:"Fruits & légumes" },
+  { name:"Miel",                   qty:1,   unit:"c. à café",  cat:"Épicerie" },
+  { name:"Cannelle",               qty:1,   unit:"pincée",     cat:"Épicerie" },
+  { name:"Beurre de cacahuète",    qty:1,   unit:"c. à soupe", cat:"Épicerie" },
+];
+
 function pickRandom(arr, excludeName){
   const pool = excludeName ? arr.filter(x => x.name !== excludeName) : arr;
   const source = pool.length ? pool : arr;
@@ -1057,6 +1121,8 @@ function buildFoodReference(){
   MEAL_STARCHES.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: "Féculents" });
   MEAL_VEGETABLES.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: "Fruits & légumes" });
   MEAL_SEASONINGS.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: p.cat || "Épicerie" });
+  BREAKFAST_BASES.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: p.cat || "Protéines" });
+  BREAKFAST_TOPPINGS.forEach(p => ref[p.name] = { qty: p.qty, unit: p.unit, cat: p.cat || "Épicerie" });
   return ref;
 }
 const FOOD_REFERENCE = buildFoodReference();
@@ -1072,6 +1138,17 @@ function setStockQty(name, qty){
     delete state.stock[name];
   } else {
     state.stock[name] = { qty, unit: (state.stock[name] && state.stock[name].unit) || (ref ? ref.unit : ""), cat: (ref ? ref.cat : "Épicerie") };
+  }
+  saveState();
+}
+
+function consumeStockQty(name, qty){
+  if(!state.stock || !state.stock[name] || qty <= 0) return;
+  const newQty = Math.max(0, state.stock[name].qty - qty);
+  if(newQty <= 0){
+    delete state.stock[name];
+  } else {
+    state.stock[name].qty = newQty;
   }
   saveState();
 }
@@ -1115,6 +1192,66 @@ function stockRows(){
   }));
   const levelOrder = { epuise: 0, bas: 1, ok: 2 };
   return rows.sort((a,b) => levelOrder[a.level] - levelOrder[b.level] || a.name.localeCompare(b.name));
+}
+
+/* =========================================================
+   SUPPLÉMENTS DU JOUR — shakers et barres protéinées : tu
+   renseignes combien de protéines/calories chacun apporte,
+   l'app compte le total du jour et te dit ce qu'il te reste
+   par rapport à ton objectif protéines calculé plus haut.
+   Remise à zéro automatique chaque nouveau jour.
+   ========================================================= */
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+
+function defaultSupplementsState(){
+  return {
+    date: todayStr(),
+    shakeCount: 0,
+    barCount: 0,
+    shakeProtein: 25,
+    shakeCalories: 120,
+    barProtein: 20,
+    barCalories: 200,
+  };
+}
+
+function ensureSupplementsToday(){
+  if(!state.supplements) state.supplements = defaultSupplementsState();
+  if(state.supplements.date !== todayStr()){
+    state.supplements.date = todayStr();
+    state.supplements.shakeCount = 0;
+    state.supplements.barCount = 0;
+  }
+}
+
+function adjustSupplementCount(type, delta){
+  ensureSupplementsToday();
+  const key = type === "shake" ? "shakeCount" : "barCount";
+  state.supplements[key] = Math.max(0, state.supplements[key] + delta);
+  saveState();
+}
+
+function setSupplementUnitValue(type, field, value){
+  ensureSupplementsToday();
+  const key = type + field.charAt(0).toUpperCase() + field.slice(1); // ex: "shake"+"Protein" -> shakeProtein
+  state.supplements[key] = Math.max(0, value);
+  saveState();
+}
+
+function supplementsTotals(){
+  ensureSupplementsToday();
+  const s = state.supplements;
+  return {
+    shakeCount: s.shakeCount, barCount: s.barCount,
+    shakeProtein: s.shakeProtein, shakeCalories: s.shakeCalories,
+    barProtein: s.barProtein, barCalories: s.barCalories,
+    proteinTotal: Math.round(s.shakeCount * s.shakeProtein + s.barCount * s.barProtein),
+    caloriesTotal: Math.round(s.shakeCount * s.shakeCalories + s.barCount * s.barCalories),
+  };
 }
 
 const WEEKLY_MENUS = [

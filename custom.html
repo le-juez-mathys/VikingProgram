@@ -94,7 +94,7 @@
     const rows = collectCustomRows();
     const valid = rows.filter(r => r.name && r.name.trim());
     if(valid.length === 0){
-      alert("Renseigne au moins un exercice avant d'évaluer la séance.");
+      showSimpleToast("Renseigne au moins un exercice avant d'évaluer la séance.");
       return;
     }
     const effort = parseInt(document.getElementById("effort").value, 10);
