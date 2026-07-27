@@ -1,11 +1,6 @@
-const CACHE_NAME = "saga-du-viking-v3";
+const CACHE_NAME = "saga-du-viking-v4";
 const CORE_ASSETS = [
   "index.html",
-  "push.html",
-  "pull.html",
-  "legs.html",
-  "cardio.html",
-  "mobility.html",
   "nutrition.html",
   "corps.html",
   "custom.html",
