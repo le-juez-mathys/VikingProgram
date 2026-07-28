@@ -5,6 +5,7 @@
 const STORAGE_KEY = "vikingSagaCharacter_v2";
 
 let currentUser = null;
+let lastCoinSyncStatus = "unknown"; // "ok" | "error" | "offline" | "unknown" — visible dans la minibar
 
 /* ---------- Connexion & synchronisation (Firebase Auth + Firestore) ----------
    Une fois connecté avec Google sur un appareil, Firebase garde la session
@@ -101,23 +102,38 @@ const COINS_PER_XP = 300;
 const SHARED_COIN_DOC = "viking";
 
 async function cloudGetSharedCoins(){
-  if(!isCloudConfigured()) return null;
+  if(!isCloudConfigured()){
+    lastCoinSyncStatus = "offline";
+    return null;
+  }
   try{
     const snap = await db.collection("sharedCoins").doc(SHARED_COIN_DOC).get();
+    lastCoinSyncStatus = "ok";
     return snap.exists ? snap.data() : null;
   }catch(e){
     console.warn("Lecture des pièces partagées indisponible :", e);
+    lastCoinSyncStatus = "error";
     return null;
   }
 }
 
 function cloudIncrementSharedCoins(delta){
-  if(!isCloudConfigured() || !delta) return;
+  if(!delta) return;
+  if(!isCloudConfigured()){
+    console.warn("Pièces NON envoyées à Firestore : Firebase n'est pas connecté (vérifie assets/firebase-config.js et que les scripts Firebase se chargent bien).");
+    lastCoinSyncStatus = "offline";
+    return;
+  }
   db.collection("sharedCoins").doc(SHARED_COIN_DOC).set({
     coins: firebase.firestore.FieldValue.increment(delta),
     name: "Guerrier Viking",
     updatedAt: new Date().toISOString()
-  }, { merge: true }).catch(e => console.warn("Envoi des pièces indisponible :", e));
+  }, { merge: true }).then(() => {
+    lastCoinSyncStatus = "ok";
+  }).catch(e => {
+    console.warn("Envoi des pièces indisponible :", e);
+    lastCoinSyncStatus = "error";
+  });
 }
 
 async function refreshCoinsCache(){
@@ -440,7 +456,7 @@ async function loadState(){
     // avec le vrai solde partagé (qui peut avoir baissé si des pièces ont été
     // dépensées depuis "Le Trésor Commun").
     grantCoinsFromXP();
-    refreshCoinsCache();
+    await refreshCoinsCache();
 
     // Garde le cache local et le cloud alignés l'un sur l'autre, quelle que
     // soit la source retenue ci-dessus.
@@ -1135,6 +1151,12 @@ function coinIconSVG(size){
 function renderMiniBar(){
   const needed = xpNeededFor(state.level);
   const pct = Math.min(100, Math.round((state.xp / needed) * 100));
+  const syncLabel = {
+    ok: '<span style="color:var(--green,#5c7a52);">● pièces synchronisées</span>',
+    error: '<span style="color:var(--blood);" title="Erreur Firestore — voir la console (F12)">⚠ erreur d\'envoi des pièces</span>',
+    offline: '<span style="color:var(--parchment-dim);" title="Firebase non connecté — vérifie assets/firebase-config.js">○ pièces non connectées</span>',
+    unknown: ''
+  }[lastCoinSyncStatus] || '';
   return `
     <div class="minibar">
       <div>
@@ -1145,7 +1167,10 @@ function renderMiniBar(){
         <div class="mb-xptrack"><div class="mb-xpfill" style="width:${pct}%"></div></div>
         <div class="mb-xplabel"><span>${state.xp} XP</span><span>${needed} XP pour le niveau suivant</span></div>
       </div>
-      <div class="mb-coins" title="1 pièce tous les 300 XP — à dépenser sur Le Trésor Commun">${coinIconSVG(22)} <b>${state.coinsCache || 0}</b></div>
+      <div class="mb-coins" title="1 pièce tous les 300 XP — à dépenser sur Le Trésor Commun">
+        ${coinIconSVG(22)} <b>${state.coinsCache || 0}</b>
+        ${syncLabel ? `<span style="font-family:var(--font-mono); font-size:10px; margin-left:6px;">${syncLabel}</span>` : ""}
+      </div>
       <div class="mb-streak">Séquence : <b>${state.streak}${state.streak===1?" jour":" jours"}</b></div>
     </div>
   `;
