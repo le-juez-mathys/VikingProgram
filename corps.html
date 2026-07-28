@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Entraînement — Saga du Viking</title>
+<title>Entraînement — Académie Étoile</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0b0d10">
+<meta name="theme-color" content="#1b1224">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Viking">
+<meta name="apple-mobile-web-app-title" content="Étoile">
 <link rel="apple-touch-icon" href="assets/icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png">
@@ -26,20 +26,20 @@
 
   <div class="section" style="border-top:1px solid var(--iron); padding-top:34px;">
     <div class="section-head">
-      <div class="rune-mark">Anatomie du guerrier</div>
+      <div class="rune-mark">Anatomie féerique</div>
       <h2>Entraînement</h2>
-      <p class="lede">Sélectionne une zone (ou deux) sur laquelle tu veux travailler aujourd'hui — muscle, Cardio ou Mobilité. La saga te propose la série d'exercices machine Basic-Fit correspondante, avec description, vidéo, et les champs pour graver ta séance.</p>
+      <p class="lede">Sélectionne une zone (ou deux) sur laquelle tu veux travailler aujourd'hui — muscle, Cardio ou Mobilité. L'académie te propose la série d'exercices machine Basic-Fit correspondante, avec description, vidéo, et les champs pour graver ta séance.</p>
     </div>
 
     <div class="bodymap-wrap" id="bodymap"></div>
 
-    <div class="zone-grid" id="zone-grid"></div>
+    <div class="zone-list" id="zone-grid"></div>
 
     <div id="zone-suggestions" style="margin-top:24px;"></div>
   </div>
 </div>
 
-<footer>Saga du Viking · tes données restent stockées sur cet appareil (stockage persistant du navigateur)</footer>
+<footer>Académie Étoile · tes données restent stockées sur cet appareil (stockage persistant du navigateur)</footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -75,8 +75,10 @@
   function renderZoneGrid(){
     const grid = document.getElementById("zone-grid");
     grid.innerHTML = trainingZoneList().map(zone => `
-      <div class="zone-card zone-select-card ${selectedZones.includes(zone.key) ? 'active' : ''}" onclick="toggleZone('${zone.key}')">
-        <div class="zc-label">${zone.label}</div>
+      <div class="zone-list-row ${selectedZones.includes(zone.key) ? 'active' : ''}" onclick="toggleZone('${zone.key}')">
+        <div class="zone-icon-circle">${zoneIconSVG(zone.key)}</div>
+        <div class="zone-list-label">${zone.label}</div>
+        <div class="zone-list-arrow">${selectedZones.includes(zone.key) ? '✓' : '›'}</div>
       </div>
     `).join("");
   }
@@ -187,7 +189,7 @@
             <span class="range-val" id="zone-effort-label">Modérée</span>
           </div>
         </div>
-        <button class="btn" onclick="validateZoneWorkout()">Graver cette séance ⚔</button>
+        <button class="btn" onclick="validateZoneWorkout()">Graver cette séance ✨</button>
       </div>
     `;
   }
