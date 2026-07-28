@@ -117,25 +117,6 @@ async function cloudGetSharedCoins(){
   }
 }
 
-function cloudIncrementSharedCoins(delta){
-  if(!delta) return;
-  if(!isCloudConfigured()){
-    console.warn("Pièces NON envoyées à Firestore : Firebase n'est pas connecté (vérifie assets/firebase-config.js et que les scripts Firebase se chargent bien).");
-    lastCoinSyncStatus = "offline";
-    return;
-  }
-  db.collection("sharedCoins").doc(SHARED_COIN_DOC).set({
-    coins: firebase.firestore.FieldValue.increment(delta),
-    name: "Guerrier Viking",
-    updatedAt: new Date().toISOString()
-  }, { merge: true }).then(() => {
-    lastCoinSyncStatus = "ok";
-  }).catch(e => {
-    console.warn("Envoi des pièces indisponible :", e);
-    lastCoinSyncStatus = "error";
-  });
-}
-
 async function refreshCoinsCache(){
   const shared = await cloudGetSharedCoins();
   if(shared && typeof shared.coins === "number"){
@@ -151,13 +132,42 @@ async function refreshCoinsCache(){
 function grantCoinsFromXP(){
   const totalCoinsEver = Math.floor(state.totalXPEarned / COINS_PER_XP);
   if(totalCoinsEver > state.coinsGranted){
-    const delta = totalCoinsEver - state.coinsGranted;
     state.coinsGranted = totalCoinsEver;
-    state.coinsCache = (state.coinsCache || 0) + delta;
-    cloudIncrementSharedCoins(delta);
-    return delta;
+    // Valeur d'affichage optimiste en attendant confirmation du serveur.
+    if(state.coinsCache === undefined || state.coinsCache === null || state.coinsCache < state.coinsGranted){
+      state.coinsCache = state.coinsGranted;
+    }
   }
-  return 0;
+  trySendPendingCoins();
+}
+
+/* Envoie à Firestore la différence entre les pièces "gagnées" localement
+   (coinsGranted) et celles dont l'envoi a été RÉELLEMENT confirmé par le
+   serveur (coinsConfirmedSent). Si un envoi précédent avait échoué (panne,
+   règles non publiées...), cette différence reste positive et la fonction
+   réessaie automatiquement à chaque chargement et à chaque gain d'XP —
+   aucune pièce n'est donc jamais perdue en silence. */
+function trySendPendingCoins(){
+  const pending = state.coinsGranted - (state.coinsConfirmedSent || 0);
+  if(pending <= 0) return;
+  if(!isCloudConfigured()){
+    console.warn(`${pending} pièce(s) en attente d'envoi à Firestore, mais Firebase n'est pas connecté.`);
+    lastCoinSyncStatus = "offline";
+    return;
+  }
+  db.collection("sharedCoins").doc(SHARED_COIN_DOC).set({
+    coins: firebase.firestore.FieldValue.increment(pending),
+    name: "Guerrier Viking",
+    updatedAt: new Date().toISOString()
+  }, { merge: true }).then(() => {
+    state.coinsConfirmedSent = (state.coinsConfirmedSent || 0) + pending;
+    lastCoinSyncStatus = "ok";
+    saveState();
+    refreshCoinsCache();
+  }).catch(e => {
+    console.warn(`Envoi de ${pending} pièce(s) indisponible (nouvelle tentative au prochain chargement) :`, e);
+    lastCoinSyncStatus = "error";
+  });
 }
 
 const DB_NAME = "vikingSagaDB";
@@ -388,6 +398,7 @@ function defaultState(){
     supplements: defaultSupplementsState(),
     savedMeals: [],
     coinsGranted: 0,
+    coinsConfirmedSent: 0,
     coinsCache: 0,
     profile: { poids: null, taille: null, age: null, activite: 1.45, deficit: 500, sexe: "femme" },
     weightGoal: { poidsAPerdre: null },
@@ -448,6 +459,7 @@ async function loadState(){
     if(state.firstLogDate === undefined) state.firstLogDate = null;
     if(state.totalXPEarned === undefined) state.totalXPEarned = 0;
     if(state.coinsGranted === undefined) state.coinsGranted = 0;
+    if(state.coinsConfirmedSent === undefined) state.coinsConfirmedSent = 0;
     if(state.coinsCache === undefined) state.coinsCache = 0;
     if(!state.updatedAt) state.updatedAt = new Date().toISOString();
 
