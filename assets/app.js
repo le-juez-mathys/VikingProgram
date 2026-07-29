@@ -157,7 +157,7 @@ function trySendPendingCoins(){
   }
   db.collection("sharedCoins").doc(SHARED_COIN_DOC).set({
     coins: firebase.firestore.FieldValue.increment(pending),
-    name: "Guerrier Viking",
+    name: "Chasseur",
     updatedAt: new Date().toISOString()
   }, { merge: true }).then(() => {
     state.coinsConfirmedSent = (state.coinsConfirmedSent || 0) + pending;
@@ -488,12 +488,12 @@ async function saveState(){
 function xpNeededFor(level){ return 100 + (level - 1) * 60; }
 
 function rankFor(level){
-  if(level >= 20) return "VIKING LÉGENDAIRE";
-  if(level >= 15) return "JARL — seigneur de guerre";
-  if(level >= 10) return "HOUSECARL — garde d'élite";
-  if(level >= 6) return "BERSERKER";
-  if(level >= 3) return "KARL — homme libre";
-  return "THRALL — apprenti";
+  if(level >= 20) return "CHASSEUR RANG S";
+  if(level >= 15) return "CHASSEUR RANG A";
+  if(level >= 10) return "CHASSEUR RANG B";
+  if(level >= 6) return "CHASSEUR RANG C";
+  if(level >= 3) return "CHASSEUR RANG D";
+  return "CHASSEUR RANG E — éveil récent";
 }
 
 function statCap(){ return 100; }
@@ -1106,14 +1106,14 @@ function renderNav(activeKey){
   return `
     <div class="topnav">
       <div class="topnav-inner">
-        <a class="brand" href="index.html">⚔ SAGA DU VIKING</a>
+        <a class="brand" href="index.html">[ SYSTÈME ]</a>
         <div class="navlinks">${links}</div>
         ${accountHtml}
       </div>
     </div>
 
     <div class="mobile-topbar">
-      <a class="brand" href="index.html">⚔ SAGA DU VIKING</a>
+      <a class="brand" href="index.html">[ SYSTÈME ]</a>
       <button class="mobile-menu-btn" onclick="toggleMobileDrawer()">☰</button>
     </div>
 
@@ -1127,7 +1127,7 @@ function renderNav(activeKey){
     <div class="bottom-tabbar">
       <a class="tab-item ${activeKey === 'index' ? 'active' : ''}" href="index.html"><span class="tab-icon">🏠</span><span>Tableau</span></a>
       <a class="tab-item ${activeIsCorps ? 'active' : ''}" href="corps.html"><span class="tab-icon">💪</span><span>Entraîner</span></a>
-      <a class="tab-item ${activeKey === 'custom' ? 'active' : ''}" href="custom.html"><span class="tab-icon">⚔</span><span>Libre</span></a>
+      <a class="tab-item ${activeKey === 'custom' ? 'active' : ''}" href="custom.html"><span class="tab-icon">⚡</span><span>Libre</span></a>
       <a class="tab-item ${activeKey === 'nutrition' ? 'active' : ''}" href="nutrition.html"><span class="tab-icon">🍽</span><span>Repas</span></a>
       <a class="tab-item ${activeKey === 'suivi' ? 'active' : ''}" href="suivi.html"><span class="tab-icon">📊</span><span>Suivi</span></a>
     </div>
@@ -1141,6 +1141,7 @@ function toggleMobileDrawer(){
   const opening = !drawer.classList.contains("open");
   drawer.classList.toggle("open", opening);
   overlay.classList.toggle("open", opening);
+  playNavClick();
 }
 
 function closeMobileDrawer(){
@@ -1156,7 +1157,7 @@ function coinIconSVG(size){
   return `<svg viewBox="0 0 40 40" width="${size}" height="${size}" style="vertical-align:-4px;">
     <circle cx="20" cy="20" r="18" fill="var(--gold)" stroke="var(--gold-bright)" stroke-width="2"/>
     <circle cx="20" cy="20" r="13" fill="none" stroke="var(--gold-bright)" stroke-width="1.4" stroke-dasharray="2.4 2.2"/>
-    <text x="20" y="26" text-anchor="middle" font-family="var(--font-display)" font-size="17" font-weight="700" fill="var(--void)">V</text>
+    <text x="20" y="26" text-anchor="middle" font-family="var(--font-display)" font-size="17" font-weight="700" fill="var(--void)">Σ</text>
   </svg>`;
 }
 
@@ -1207,22 +1208,112 @@ function injectToast(){
   if(document.getElementById("levelup-toast")) return;
   const div = document.createElement("div");
   div.id = "levelup-toast";
-  div.textContent = "⚔ Niveau supérieur !";
   document.body.appendChild(div);
+}
+
+const ALARM_CORNER_SVG = `
+  <svg class="alarm-corner" style="top:6px; left:6px;" viewBox="0 0 26 26"><path d="M2,2 Q2,13 13,13 M2,2 Q13,2 13,13 M2,2 L2,8 M2,2 L8,2" fill="none" stroke="var(--ember-bright)" stroke-width="1.2"/></svg>
+  <svg class="alarm-corner" style="top:6px; right:6px; transform:scaleX(-1);" viewBox="0 0 26 26"><path d="M2,2 Q2,13 13,13 M2,2 Q13,2 13,13 M2,2 L2,8 M2,2 L8,2" fill="none" stroke="var(--ember-bright)" stroke-width="1.2"/></svg>
+`;
+
+/* Colore automatiquement certains mots-clés du message (XP, pièces, records,
+   rangs) façon fenêtre "Alarme" du Système — sans avoir à toucher chacun
+   des appels à showSimpleToast dans les différentes pages. */
+function highlightKeywords(msg){
+  return msg
+    .replace(/(\+\s?\d+(?:[.,]\d+)?\s*XP)/gi, '<span class="kw-xp">$1</span>')
+    .replace(/(\d+(?:[.,]\d+)?\s*pi[eè]ces?)/gi, '<span class="kw-coin">$1</span>')
+    .replace(/(\d+\s*record(?:\(s\))?\s*!?)/gi, '<span class="kw-record">$1</span>')
+    .replace(/(CHASSEUR RANG [A-ZÀ-Ü])/g, '<span class="kw-rank">$1</span>');
+}
+
+function renderAlarmHTML(message){
+  return `
+    ${ALARM_CORNER_SVG}
+    <div class="alarm-close">— X</div>
+    <div class="alarm-head">⚠ ALARME</div>
+    <div class="alarm-body">[ ${highlightKeywords(message)} ]</div>
+  `;
+}
+
+/* ---------- Sons du Système (synthétisés, aucun fichier audio nécessaire) ----------
+   Web Audio API : un petit bip pour chaque interaction validée, une séquence
+   plus riche pour un passage de niveau. Fonctionne hors-ligne, sans réseau. */
+let sysAudioCtx = null;
+function getSysAudioCtx(){
+  if(sysAudioCtx) return sysAudioCtx;
+  try{ sysAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return null; }
+  return sysAudioCtx;
+}
+
+function playTone(freq, startDelay, duration, volume){
+  const ctx = getSysAudioCtx();
+  if(!ctx) return;
+  const play = () => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(volume || 0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  };
+  if(startDelay > 0) setTimeout(play, startDelay); else play();
+  if(ctx.state === "suspended") ctx.resume();
+}
+
+function playSystemBeep(){
+  // Bip système court, deux notes ascendantes — pour chaque quête/action validée.
+  playTone(680, 0, 0.09, 0.1);
+  playTone(960, 70, 0.11, 0.1);
+}
+
+function playLevelUpSound(){
+  // Séquence de 4 notes montantes — pour un passage de niveau/rang.
+  [520, 660, 880, 1180].forEach((freq, i) => playTone(freq, i * 95, 0.18, 0.13));
+}
+
+function playNavClick(){
+  // Tic bref et discret — navigation, ouverture du tiroir, sélection de zone.
+  playTone(1200, 0, 0.045, 0.05);
+}
+
+function playRecordFanfare(){
+  // Petit accord montant plus marqué — un nouveau record vient d'être battu.
+  playTone(880, 0, 0.16, 0.13);
+  playTone(1108, 60, 0.16, 0.13);
+  playTone(1318, 120, 0.22, 0.14);
+}
+
+function playErrorBuzz(){
+  // Ton grave et dissonant — action refusée / champ manquant.
+  playTone(180, 0, 0.16, 0.11);
+  playTone(170, 0, 0.16, 0.09);
 }
 
 function showLevelUpToast(){
   const toast = document.getElementById("levelup-toast");
-  toast.textContent = `⚔ Niveau supérieur ! Tu es maintenant ${rankFor(state.level)} — Niveau ${state.level}`;
+  toast.innerHTML = renderAlarmHTML(`Niveau supérieur ! Tu es maintenant ${rankFor(state.level)} — Niveau ${state.level}`);
   toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 3400);
+  playLevelUpSound();
+  setTimeout(() => toast.classList.remove("show"), 3600);
 }
 
 function showSimpleToast(msg){
   const toast = document.getElementById("levelup-toast");
-  toast.textContent = msg;
+  toast.innerHTML = renderAlarmHTML(msg);
   toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 2600);
+  if(/^(Choisis|Renseigne|Donne un nom)|Pas assez|manque des pièces|Solde non chargé|Soldes non chargés/i.test(msg)){
+    playErrorBuzz();
+  } else if(/record\(s\)/i.test(msg)){
+    playRecordFanfare();
+  } else {
+    playSystemBeep();
+  }
+  setTimeout(() => toast.classList.remove("show"), 2800);
 }
 
 /* ---------- Aide pour construire une table d'exercices avec inputs ---------- */
@@ -1693,7 +1784,7 @@ function generateGroceryListText(){
     if(!byCat[it.cat]) byCat[it.cat] = [];
     byCat[it.cat].push(it);
   });
-  let out = `LISTE DE COURSES — Saga du Viking\n\n`;
+  let out = `LISTE DE COURSES — Système\n\n`;
   GROCERY_CAT_ORDER.forEach(cat => {
     if(!byCat[cat] || !byCat[cat].length) return;
     out += `== ${cat.toUpperCase()} ==\n`;
@@ -1703,7 +1794,7 @@ function generateGroceryListText(){
     });
     out += `\n`;
   });
-  out += `— Saga du Viking —\n`;
+  out += `— Système —\n`;
   return out;
 }
 
@@ -2151,7 +2242,7 @@ function generateShoppingListText(weekIndex){
     });
     out += `\n`;
   });
-  out += `— Saga du Viking —\n`;
+  out += `— Système —\n`;
   return out;
 }
 
@@ -2402,12 +2493,12 @@ function renderCategoryBodyMap(containerId, categoryKey){
    ========================================================= */
 
 const AVATAR_STAGES = [
-  { minLevel: 1,  label: "Thrall",   accent: "#7d8492" },
-  { minLevel: 3,  label: "Karl",     accent: "#8a9a7a" },
-  { minLevel: 6,  label: "Berserker",accent: "#b8541f" },
-  { minLevel: 10, label: "Housecarl",accent: "#c9a35d" },
-  { minLevel: 15, label: "Jarl",     accent: "#e07a3a" },
-  { minLevel: 20, label: "Viking Légendaire", accent: "#e6c583" },
+  { minLevel: 1,  label: "Chasseur Rang E",   accent: "#7a9ac0" },
+  { minLevel: 3,  label: "Chasseur Rang D",   accent: "#3a8fff" },
+  { minLevel: 6,  label: "Chasseur Rang C",   accent: "#5ac8fa" },
+  { minLevel: 10, label: "Chasseur Rang B",   accent: "#7ab8ff" },
+  { minLevel: 15, label: "Chasseur Rang A",   accent: "#ffffff" },
+  { minLevel: 20, label: "Chasseur Rang S",   accent: "#ffffff" },
 ];
 
 function avatarStageIndex(level){
@@ -2417,54 +2508,62 @@ function avatarStageIndex(level){
 }
 
 function buildAvatarSVG(level){
-  const stage = avatarStageIndex(level);
-  const shoulderW = 44 + stage * 7;
-  const waistW = Math.max(24, 42 - stage * 3);
+  const stage = avatarStageIndex(level); // 0..5 (Rang E → S)
   const accent = AVATAR_STAGES[stage].accent;
-  const cx = 100, shoulderY = 96, waistY = 160, hipY = 172, footY = 250;
+  const cx = 100, cy = 110;
+  const coreR   = [16, 19, 22, 26, 30, 35][stage];
+  const ringR1  = [26, 30, 34, 40, 46, 54][stage];
+  const ringR2  = [0,  0,  46, 52, 60, 70][stage];
+  const ringR3  = [0,  0,  0,  0,  76, 90][stage];
+  const rayLen  = [40, 46, 54, 64, 76, 92][stage];
+  const peak = stage >= 4; // Rang A/S : noyau et rayons passent au blanc pur
+  const coreFill = peak ? "#ffffff" : accent;
+  const rayColor = peak ? "#ffffff" : (stage >= 2 ? accent : "var(--iron-light)");
+  const diagLen = rayLen * 0.72;
 
-  let gear = "";
-  if(stage >= 1){
-    gear += `<rect x="${cx-waistW/2-4}" y="${waistY-4}" width="${waistW+8}" height="10" rx="4" fill="#5b4324"/>`;
-  }
+  let rings = `<circle class="avatar-ring avatar-ring-1" cx="${cx}" cy="${cy}" r="${ringR1}" fill="none" stroke="${stage >= 2 ? "var(--ember-bright)" : "var(--iron-light)"}" stroke-width="1.4"/>`;
+  if(ringR2) rings += `<circle class="avatar-ring avatar-ring-2" cx="${cx}" cy="${cy}" r="${ringR2}" fill="none" stroke="var(--ember)" stroke-width="1.2"/>`;
+  if(ringR3) rings += `<circle class="avatar-ring avatar-ring-3" cx="${cx}" cy="${cy}" r="${ringR3}" fill="none" stroke="var(--iron-light)" stroke-width="0.8" stroke-dasharray="2 4"/>`;
+
+  let rays = `
+    <line class="avatar-ray" x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy-rayLen}" stroke="${rayColor}" stroke-width="1.3"/>
+    <line class="avatar-ray" x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy+rayLen}" stroke="${rayColor}" stroke-width="1.3"/>
+    <line class="avatar-ray" x1="${cx}" y1="${cy}" x2="${cx-rayLen}" y2="${cy}" stroke="${rayColor}" stroke-width="1.3"/>
+    <line class="avatar-ray" x1="${cx}" y1="${cy}" x2="${cx+rayLen}" y2="${cy}" stroke="${rayColor}" stroke-width="1.3"/>
+  `;
   if(stage >= 2){
-    gear += `<circle cx="${cx-shoulderW/2+4}" cy="${shoulderY+2}" r="13" fill="#6b5335"/>`;
-    gear += `<line x1="${cx+shoulderW/2}" y1="${shoulderY+20}" x2="${cx+shoulderW/2+34}" y2="${shoulderY+70}" stroke="#8a6a3f" stroke-width="5" stroke-linecap="round"/>`;
-    gear += `<path d="M ${cx+shoulderW/2+30} ${shoulderY+60} l -14 -6 l 14 -18 l 14 18 z" fill="${accent}"/>`;
+    rays += `
+      <line class="avatar-ray" x1="${cx}" y1="${cy}" x2="${cx-diagLen}" y2="${cy-diagLen}" stroke="${rayColor}" stroke-width="1.3" opacity="0.85"/>
+      <line class="avatar-ray" x1="${cx}" y1="${cy}" x2="${cx+diagLen}" y2="${cy+diagLen}" stroke="${rayColor}" stroke-width="1.3" opacity="0.85"/>
+    `;
   }
   if(stage >= 3){
-    gear += `<ellipse cx="${cx-shoulderW/2-20}" cy="${shoulderY+50}" rx="16" ry="26" fill="#4a3a2a" stroke="${accent}" stroke-width="2"/>`;
-  }
-  if(stage >= 4){
-    gear += `<path d="M ${cx-shoulderW/2+2} ${shoulderY-6} Q ${cx} ${waistY+50} ${cx+shoulderW/2-2} ${shoulderY-6} L ${cx+shoulderW/2+10} ${shoulderY+4} Q ${cx} ${waistY+64} ${cx-shoulderW/2-10} ${shoulderY+4} Z" fill="#5a1f1f" opacity="0.85"/>`;
-  }
-  if(stage >= 5){
-    gear += `<path d="M ${cx-30} ${shoulderY-40} L ${cx-42} ${shoulderY-64} L ${cx-14} ${shoulderY-46} Z" fill="#d8d0c0"/>`;
-    gear += `<path d="M ${cx+30} ${shoulderY-40} L ${cx+42} ${shoulderY-64} L ${cx+14} ${shoulderY-46} Z" fill="#d8d0c0"/>`;
-    gear += `<circle cx="${cx}" cy="${shoulderY-10}" r="90" fill="none" stroke="${accent}" stroke-width="1.5" opacity="0.35"/>`;
+    rays += `
+      <line class="avatar-ray" x1="${cx}" y1="${cy}" x2="${cx-diagLen}" y2="${cy+diagLen}" stroke="${rayColor}" stroke-width="1.3" opacity="0.85"/>
+      <line class="avatar-ray" x1="${cx}" y1="${cy}" x2="${cx+diagLen}" y2="${cy-diagLen}" stroke="${rayColor}" stroke-width="1.3" opacity="0.85"/>
+    `;
   }
 
-  const absLines = stage >= 2 ? `
-    <line x1="${cx-16}" y1="${waistY-38}" x2="${cx-16}" y2="${waistY-6}" stroke="#00000030" stroke-width="2"/>
-    <line x1="${cx}" y1="${waistY-38}" x2="${cx}" y2="${waistY-6}" stroke="#00000030" stroke-width="2"/>
-    <line x1="${cx+16}" y1="${waistY-38}" x2="${cx+16}" y2="${waistY-6}" stroke="#00000030" stroke-width="2"/>
-  ` : "";
+  let particles = "";
+  if(stage >= 3){
+    const pc = peak ? "#ffffff" : "var(--ember-bright)";
+    particles = `
+      <circle class="avatar-particle" style="animation-delay:0s;" cx="${cx}" cy="${cy-rayLen}" r="2.4" fill="${pc}"/>
+      <circle class="avatar-particle" style="animation-delay:0.35s;" cx="${cx}" cy="${cy+rayLen}" r="2.4" fill="${pc}"/>
+      <circle class="avatar-particle" style="animation-delay:0.7s;" cx="${cx-rayLen}" cy="${cy}" r="2.4" fill="${pc}"/>
+      <circle class="avatar-particle" style="animation-delay:1.05s;" cx="${cx+rayLen}" cy="${cy}" r="2.4" fill="${pc}"/>
+    `;
+  }
+
+  const coreGlow = peak ? `<circle class="avatar-ring-1" cx="${cx}" cy="${cy}" r="${coreR}" fill="none" stroke="${accent}" stroke-width="3" opacity="0.5"/>` : "";
 
   return `
-  <svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:220px; height:auto; display:block; margin:0 auto;">
-    ${gear}
-    <circle cx="${cx}" cy="46" r="22" fill="#d8b88a"/>
-    <path d="M ${cx-22} 40 Q ${cx-22} 18 ${cx} 18 Q ${cx+22} 18 ${cx+22} 40 L ${cx+22} 30 Q ${cx} 22 ${cx-22} 30 Z" fill="#7a5a35"/>
-    <path d="M ${cx-shoulderW/2} ${shoulderY} Q ${cx-shoulderW/2-6} ${(shoulderY+waistY)/2} ${cx-waistW/2} ${waistY}
-             L ${cx+waistW/2} ${waistY} Q ${cx+shoulderW/2+6} ${(shoulderY+waistY)/2} ${cx+shoulderW/2} ${shoulderY}
-             Q ${cx} ${shoulderY-14} ${cx-shoulderW/2} ${shoulderY} Z" fill="#c8ccd2"/>
-    ${absLines}
-    <rect x="${cx-waistW/2-10}" y="${shoulderY+6}" width="10" height="52" rx="5" fill="#d8b88a"/>
-    <rect x="${cx+waistW/2}" y="${shoulderY+6}" width="10" height="52" rx="5" fill="#d8b88a"/>
-    <rect x="${cx-waistW/2}" y="${hipY}" width="${waistW*0.42}" height="60" rx="8" fill="#3c4450"/>
-    <rect x="${cx+waistW/2-waistW*0.42}" y="${hipY}" width="${waistW*0.42}" height="60" rx="8" fill="#3c4450"/>
-    <rect x="${cx-waistW/2}" y="${footY-10}" width="${waistW*0.42}" height="12" rx="4" fill="#2a241c"/>
-    <rect x="${cx+waistW/2-waistW*0.42}" y="${footY-10}" width="${waistW*0.42}" height="12" rx="4" fill="#2a241c"/>
+  <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:220px; height:auto; display:block; margin:0 auto;">
+    ${rings}
+    ${rays}
+    ${particles}
+    ${coreGlow}
+    <circle class="avatar-core" cx="${cx}" cy="${cy}" r="${coreR}" fill="${coreFill}"/>
   </svg>`;
 }
 
@@ -2639,6 +2738,6 @@ function generateRecipesText(weekIndex){
       out += (RECIPES[meal.name] || "Recette non disponible.") + "\n\n";
     });
   });
-  out += `— Saga du Viking —\n`;
+  out += `— Système —\n`;
   return out;
 }

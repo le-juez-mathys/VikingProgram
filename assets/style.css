@@ -1,21 +1,21 @@
 :root{
-  --void:#0b0d10;
-  --panel:#15181d;
-  --panel-raised:#1c2027;
-  --iron:#3a3f47;
-  --iron-light:#565d68;
-  --ember:#b8541f;
-  --ember-bright:#e07a3a;
-  --gold:#c9a35d;
-  --gold-bright:#e6c583;
-  --blood:#7a2b2b;
-  --parchment:#e9e2d0;
-  --parchment-dim:#a39c8b;
-  --green:#5c7a52;
-  --blue:#7891b8;
-  --font-display:'Cinzel', serif;
-  --font-body:'Crimson Pro', serif;
-  --font-mono:'JetBrains Mono', monospace;
+  --void:#050810;
+  --panel:#0a1220;
+  --panel-raised:#0d1830;
+  --iron:#1a4a7a;
+  --iron-light:#2a6ab0;
+  --ember:#3a8fff;
+  --ember-bright:#5ac8fa;
+  --gold:#7ab8ff;
+  --gold-bright:#ffffff;
+  --blood:#c4314f;
+  --parchment:#d8e8f8;
+  --parchment-dim:#7a9ac0;
+  --green:#3ac47a;
+  --blue:#3a8fff;
+  --font-display:'Orbitron', sans-serif;
+  --font-body:'Rajdhani', sans-serif;
+  --font-mono:'Rajdhani', sans-serif;
 }
 
 *{box-sizing:border-box; margin:0; padding:0;}
@@ -272,12 +272,26 @@ select:focus, input:focus, button:focus, a:focus{outline:2px solid var(--gold-br
 /* ---------- TOAST ---------- */
 #levelup-toast{
   position:fixed; top:24px; left:50%; transform:translateX(-50%) translateY(-140%);
-  background:var(--panel-raised); border:1px solid var(--gold); color:var(--gold-bright);
-  font-family:var(--font-display); padding:16px 28px; border-radius:6px; z-index:100;
-  box-shadow:0 10px 40px rgba(0,0,0,0.5); transition:transform .5s cubic-bezier(.34,1.56,.64,1);
-  text-align:center; font-size:15px; max-width:90vw;
+  background:linear-gradient(180deg, var(--panel-raised) 0%, var(--void) 100%);
+  border:1px solid var(--iron-light); color:var(--parchment);
+  font-family:var(--font-body); padding:18px 26px 20px; border-radius:6px; z-index:100;
+  box-shadow:0 0 30px rgba(58,143,255,0.25), 0 10px 40px rgba(0,0,0,0.6);
+  transition:transform .5s cubic-bezier(.34,1.56,.64,1);
+  text-align:center; font-size:15px; max-width:420px; width:90vw;
 }
 #levelup-toast.show{transform:translateX(-50%) translateY(0);}
+.alarm-head{
+  font-family:var(--font-display); color:var(--parchment); font-size:14px; letter-spacing:3px;
+  border-bottom:1px solid var(--iron-light); padding-bottom:10px; margin-bottom:10px;
+}
+.alarm-corner{position:absolute; width:26px; height:26px; opacity:0.8; pointer-events:none;}
+.alarm-close{position:absolute; top:8px; right:12px; font-family:var(--font-mono); font-size:11px; color:var(--parchment-dim);}
+.alarm-body{font-family:var(--font-body); font-weight:600; font-size:15px; color:var(--parchment);}
+.alarm-body b{font-weight:700;}
+.kw-xp{color:var(--green);}
+.kw-coin{color:#ffd23a;}
+.kw-record{color:var(--blood);}
+.kw-rank{color:var(--ember-bright);}
 
 /* ---------- CHRONICLE ---------- */
 .chronicle-list{display:flex; flex-direction:column-reverse; gap:10px; max-height:360px; overflow-y:auto; padding-right:4px;}
@@ -483,4 +497,38 @@ table.menu tr:last-child td{border-bottom:none;}
 .chip-btn:hover{border-color:var(--gold); color:var(--gold-bright);}
 @media (max-width:700px){
   .account-chip{order:3; width:100%; justify-content:center; margin-top:8px;}
+}
+
+/* ---------- Noyau d'énergie animé (avatar) ---------- */
+@keyframes avatar-core-pulse{
+  0%, 100%{ opacity:1; transform:scale(1); filter:drop-shadow(0 0 4px currentColor); }
+  50%{ opacity:0.78; transform:scale(1.1); filter:drop-shadow(0 0 10px currentColor); }
+}
+@keyframes avatar-ring-spin{
+  from{ transform:rotate(0deg); }
+  to{ transform:rotate(360deg); }
+}
+@keyframes avatar-ring-spin-reverse{
+  from{ transform:rotate(360deg); }
+  to{ transform:rotate(0deg); }
+}
+@keyframes avatar-ray-breathe{
+  0%, 100%{ opacity:0.55; }
+  50%{ opacity:1; }
+}
+@keyframes avatar-particle-twinkle{
+  0%, 100%{ opacity:0.3; transform:scale(0.7); }
+  50%{ opacity:1; transform:scale(1.4); }
+}
+.avatar-core{
+  transform-origin:center; transform-box:fill-box; color:var(--ember-bright);
+  animation:avatar-core-pulse 2.2s ease-in-out infinite;
+}
+.avatar-ring-1{ transform-origin:center; transform-box:fill-box; animation:avatar-ring-spin 16s linear infinite; }
+.avatar-ring-2{ transform-origin:center; transform-box:fill-box; animation:avatar-ring-spin-reverse 22s linear infinite; }
+.avatar-ring-3{ transform-origin:center; transform-box:fill-box; animation:avatar-ring-spin 30s linear infinite; }
+.avatar-ray{ transform-origin:center; transform-box:fill-box; animation:avatar-ray-breathe 2.2s ease-in-out infinite; }
+.avatar-particle{ transform-origin:center; transform-box:fill-box; animation:avatar-particle-twinkle 1.5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce){
+  .avatar-core, .avatar-ring-1, .avatar-ring-2, .avatar-ring-3, .avatar-ray, .avatar-particle{ animation:none; }
 }
