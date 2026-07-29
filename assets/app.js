@@ -332,7 +332,8 @@ const DASHBOARD_CARDS = [
   { key: "corps",      label: "Entraînement",    page: "corps.html",    tag: "Choisis ta zone · toutes les machines" },
   { key: "libre",      label: "Séance libre",    page: "custom.html",    tag: "Improvise ta quête" },
   { key: "nutrition",  label: "Provisions",      page: "nutrition.html", tag: "Nutrition" },
-  { key: "suivi",      label: "Suivi",           page: "suivi.html",     tag: "Calculateur · Journal" }
+  { key: "suivi",      label: "Suivi",           page: "suivi.html",     tag: "Calculateur · Journal" },
+  { key: "playlists",  label: "Playlists",       page: "playlists.html", tag: "Son de combat" }
 ];
 
 const NAV_PAGES = [
@@ -340,7 +341,8 @@ const NAV_PAGES = [
   { key: "corps",     label: "Entraînement",page: "corps.html" },
   { key: "custom",    label: "Séance libre",page: "custom.html" },
   { key: "nutrition", label: "Provisions",  page: "nutrition.html" },
-  { key: "suivi",     label: "Suivi",       page: "suivi.html" }
+  { key: "suivi",     label: "Suivi",       page: "suivi.html" },
+  { key: "playlists", label: "Playlists",   page: "playlists.html" }
 ];
 
 /* Zones sélectionnables sur la page Entraînement : les zones musculaires
@@ -422,13 +424,20 @@ async function loadState(){
 
     let saved = null;
     if(cloud && local){
-      // Ni l'un ni l'autre n'est automatiquement prioritaire : on garde la
-      // version la plus récente pour éviter qu'une écriture cloud en échec
-      // silencieux (ex: juste après une réinitialisation) n'écrase une
-      // version locale plus fraîche.
-      const cloudTime = cloud.updatedAt ? new Date(cloud.updatedAt).getTime() : 0;
-      const localTime = local.updatedAt ? new Date(local.updatedAt).getTime() : 0;
-      saved = cloudTime >= localTime ? cloud : local;
+      // On privilégie la progression RÉELLE (XP cumulé, qui ne fait
+      // qu'augmenter) plutôt que la simple date de dernière modification :
+      // une sauvegarde locale vide fraîchement recréée (ex: après un
+      // nettoyage du navigateur) aurait sinon une date "plus récente" que
+      // la vraie sauvegarde cloud et l'écraserait à tort avec du vide.
+      const cloudXP = cloud.totalXPEarned || 0;
+      const localXP = local.totalXPEarned || 0;
+      if(cloudXP !== localXP){
+        saved = cloudXP > localXP ? cloud : local;
+      } else {
+        const cloudTime = cloud.updatedAt ? new Date(cloud.updatedAt).getTime() : 0;
+        const localTime = local.updatedAt ? new Date(local.updatedAt).getTime() : 0;
+        saved = cloudTime >= localTime ? cloud : local;
+      }
     } else if(cloud){
       saved = cloud;
     } else if(local){
@@ -1106,14 +1115,14 @@ function renderNav(activeKey){
   return `
     <div class="topnav">
       <div class="topnav-inner">
-        <a class="brand" href="index.html">[ SYSTÈME ]</a>
+        <a class="brand" href="index.html">[ YETSU ]</a>
         <div class="navlinks">${links}</div>
         ${accountHtml}
       </div>
     </div>
 
     <div class="mobile-topbar">
-      <a class="brand" href="index.html">[ SYSTÈME ]</a>
+      <a class="brand" href="index.html">[ YETSU ]</a>
       <button class="mobile-menu-btn" onclick="toggleMobileDrawer()">☰</button>
     </div>
 
@@ -1497,6 +1506,8 @@ function renderFullSheet(elId){
   const el = document.getElementById(elId);
   const needed = xpNeededFor(state.level);
   const pct = Math.min(100, Math.round((state.xp / needed) * 100));
+  const coinXP = state.totalXPEarned % COINS_PER_XP;
+  const coinPct = Math.round((coinXP / COINS_PER_XP) * 100);
   el.innerHTML = `
     <div class="sheet-top">
       <div class="title-block">
@@ -1507,6 +1518,17 @@ function renderFullSheet(elId){
     </div>
     <div class="xp-track"><div class="xp-fill" style="width:${pct}%"></div></div>
     <div class="xp-label"><span>${state.xp} XP</span><span>${needed} XP pour le niveau suivant</span></div>
+    <div class="coin-panel">
+      <div class="coin-panel-top">
+        ${coinIconSVG(30)}
+        <div>
+          <div class="coin-panel-count">${state.coinsCache || 0} pièce${(state.coinsCache||0)!==1?"s":""}</div>
+          <div class="coin-panel-hint">À dépenser sur Le Trésor Commun</div>
+        </div>
+      </div>
+      <div class="mb-cointrack"><div class="mb-coinfill" style="width:${coinPct}%"></div></div>
+      <div class="mb-coinlabel">${coinXP} / ${COINS_PER_XP} XP avant la prochaine pièce</div>
+    </div>
     <div class="stat-grid">
       ${["force","endurance","vitalite","discipline"].map(k => `
         <div class="stat" data-k="${k}">
@@ -1843,7 +1865,7 @@ function generateGroceryListText(){
     if(!byCat[it.cat]) byCat[it.cat] = [];
     byCat[it.cat].push(it);
   });
-  let out = `LISTE DE COURSES — Système\n\n`;
+  let out = `LISTE DE COURSES — Yetsu\n\n`;
   GROCERY_CAT_ORDER.forEach(cat => {
     if(!byCat[cat] || !byCat[cat].length) return;
     out += `== ${cat.toUpperCase()} ==\n`;
@@ -1853,7 +1875,7 @@ function generateGroceryListText(){
     });
     out += `\n`;
   });
-  out += `— Système —\n`;
+  out += `— Yetsu —\n`;
   return out;
 }
 
@@ -2301,7 +2323,7 @@ function generateShoppingListText(weekIndex){
     });
     out += `\n`;
   });
-  out += `— Système —\n`;
+  out += `— Yetsu —\n`;
   return out;
 }
 
@@ -2797,6 +2819,6 @@ function generateRecipesText(weekIndex){
       out += (RECIPES[meal.name] || "Recette non disponible.") + "\n\n";
     });
   });
-  out += `— Système —\n`;
+  out += `— Yetsu —\n`;
   return out;
 }

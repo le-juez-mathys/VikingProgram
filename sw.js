@@ -1,4 +1,4 @@
-const CACHE_NAME = "systeme-v5";
+const CACHE_NAME = "yetsu-v6";
 const CORE_ASSETS = [
   "index.html",
   "nutrition.html",

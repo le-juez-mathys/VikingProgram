@@ -1,6 +1,6 @@
 {
-  "name": "Système",
-  "short_name": "Système",
+  "name": "Yetsu",
+  "short_name": "Yetsu",
   "description": "Ta quête d'ascension, façon RPG chasseur.",
   "start_url": "index.html",
   "scope": ".",
