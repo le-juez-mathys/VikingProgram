@@ -485,14 +485,14 @@ async function saveState(){
   if(currentUser) cloudSet(currentUser.uid, state); // en arrière-plan, transparent pour l'utilisateur
 }
 
-function xpNeededFor(level){ return 100 + (level - 1) * 60; }
+function xpNeededFor(level){ return 100 + (level - 1) * 60 + Math.pow(level - 1, 2) * 8; }
 
 function rankFor(level){
-  if(level >= 20) return "CHASSEUR RANG S";
-  if(level >= 15) return "CHASSEUR RANG A";
-  if(level >= 10) return "CHASSEUR RANG B";
-  if(level >= 6) return "CHASSEUR RANG C";
-  if(level >= 3) return "CHASSEUR RANG D";
+  if(level >= 40) return "CHASSEUR RANG S";
+  if(level >= 28) return "CHASSEUR RANG A";
+  if(level >= 18) return "CHASSEUR RANG B";
+  if(level >= 10) return "CHASSEUR RANG C";
+  if(level >= 5) return "CHASSEUR RANG D";
   return "CHASSEUR RANG E — éveil récent";
 }
 
@@ -1202,12 +1202,20 @@ async function initPage(activeKey){
   const barEl = document.getElementById("minibar-container");
   if(barEl) barEl.innerHTML = renderMiniBar();
   injectToast();
+  injectLevelCascade();
 }
 
 function injectToast(){
   if(document.getElementById("levelup-toast")) return;
   const div = document.createElement("div");
   div.id = "levelup-toast";
+  document.body.appendChild(div);
+}
+
+function injectLevelCascade(){
+  if(document.getElementById("level-cascade")) return;
+  const div = document.createElement("div");
+  div.id = "level-cascade";
   document.body.appendChild(div);
 }
 
@@ -1295,11 +1303,22 @@ function playErrorBuzz(){
 }
 
 function showLevelUpToast(){
-  const toast = document.getElementById("levelup-toast");
-  toast.innerHTML = renderAlarmHTML(`Niveau supérieur ! Tu es maintenant ${rankFor(state.level)} — Niveau ${state.level}`);
-  toast.classList.add("show");
+  const container = document.getElementById("level-cascade");
+  if(!container) return;
+  const messages = [
+    "Niveau supérieur atteint.",
+    `Nouveau rang : ${rankFor(state.level)}.`,
+    "Statistiques augmentées."
+  ];
+  container.innerHTML = messages.map((msg, i) => `
+    <div class="cascade-item" style="animation-delay:${i * 0.35}s;">[ ${highlightKeywords(msg)} ]</div>
+  `).join("");
+  container.classList.add("show");
   playLevelUpSound();
-  setTimeout(() => toast.classList.remove("show"), 3600);
+  setTimeout(() => {
+    container.classList.remove("show");
+    setTimeout(() => { container.innerHTML = ""; }, 400);
+  }, 4600);
 }
 
 function showSimpleToast(msg){
@@ -2494,11 +2513,11 @@ function renderCategoryBodyMap(containerId, categoryKey){
 
 const AVATAR_STAGES = [
   { minLevel: 1,  label: "Chasseur Rang E",   accent: "#7a9ac0" },
-  { minLevel: 3,  label: "Chasseur Rang D",   accent: "#3a8fff" },
-  { minLevel: 6,  label: "Chasseur Rang C",   accent: "#5ac8fa" },
-  { minLevel: 10, label: "Chasseur Rang B",   accent: "#7ab8ff" },
-  { minLevel: 15, label: "Chasseur Rang A",   accent: "#ffffff" },
-  { minLevel: 20, label: "Chasseur Rang S",   accent: "#ffffff" },
+  { minLevel: 5,  label: "Chasseur Rang D",   accent: "#3a8fff" },
+  { minLevel: 10, label: "Chasseur Rang C",   accent: "#5ac8fa" },
+  { minLevel: 18, label: "Chasseur Rang B",   accent: "#7ab8ff" },
+  { minLevel: 28, label: "Chasseur Rang A",   accent: "#ffffff" },
+  { minLevel: 40, label: "Chasseur Rang S",   accent: "#ffffff" },
 ];
 
 function avatarStageIndex(level){
