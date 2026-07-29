@@ -1224,6 +1224,43 @@ const ALARM_CORNER_SVG = `
   <svg class="alarm-corner" style="top:6px; right:6px; transform:scaleX(-1);" viewBox="0 0 26 26"><path d="M2,2 Q2,13 13,13 M2,2 Q13,2 13,13 M2,2 L2,8 M2,2 L8,2" fill="none" stroke="var(--ember-bright)" stroke-width="1.2"/></svg>
 `;
 
+/* ---------- Phrases du Système (trash talk / motivation) ----------
+   Uniquement sur le physique, le muscle et la force — jamais sur la
+   nourriture ni des conseils de vie génériques. Une phrase aléatoire
+   accompagne chaque action réussie, pour l'ambiance "chasseur" du Système. */
+const MOTIVATIONAL_PHRASES = [
+  // Trash talk / provocation
+  "Tu appelles ça un effort ? Recommence.",
+  "Les excuses ne soulèvent pas de fonte.",
+  "Ton pire jour d'entraînement bat ton meilleur jour de canapé.",
+  "Si c'était facile, tout le monde serait Rang S.",
+  "Arrête de négocier avec la faiblesse.",
+  "La fatigue est un signal, pas une excuse.",
+  "Personne ne devient fort en restant confortable.",
+  "Ton corps ment. Ta discipline tranche.",
+  "Le canapé ne construit aucun muscle.",
+  "Une série de plus, ou une excuse de plus. Choisis.",
+  "Le confort est l'ennemi du rang supérieur.",
+  "Ce muscle ne se plaint pas tout seul, c'est toi qui le fais.",
+  // Encouragement
+  "Chaque rep te rapproche du rang suivant.",
+  "La force se forge série après série.",
+  "Un chasseur ne recule jamais devant l'effort.",
+  "Ta discipline d'aujourd'hui est ta puissance de demain.",
+  "Le Système ne récompense que ceux qui persistent.",
+  "Ce muscle que tu construis, personne ne peut te le reprendre.",
+  "Chaque quête gravée est une preuve de ta progression.",
+  "Ton corps est capable de bien plus que tu ne le crois.",
+  "La puissance n'attend pas la motivation, elle la précède.",
+  "Encore une série. Encore un pas vers le rang supérieur.",
+  "La force ne ment jamais sur le travail fourni.",
+  "Chaque quête accomplie forge un corps plus fort.",
+];
+
+function randomMotivationalPhrase(){
+  return MOTIVATIONAL_PHRASES[Math.floor(Math.random() * MOTIVATIONAL_PHRASES.length)];
+}
+
 /* Colore automatiquement certains mots-clés du message (XP, pièces, records,
    rangs) façon fenêtre "Alarme" du Système — sans avoir à toucher chacun
    des appels à showSimpleToast dans les différentes pages. */
@@ -1235,12 +1272,13 @@ function highlightKeywords(msg){
     .replace(/(CHASSEUR RANG [A-ZÀ-Ü])/g, '<span class="kw-rank">$1</span>');
 }
 
-function renderAlarmHTML(message){
+function renderAlarmHTML(message, quote){
   return `
     ${ALARM_CORNER_SVG}
     <div class="alarm-close">— X</div>
     <div class="alarm-head">⚠ ALARME</div>
     <div class="alarm-body">[ ${highlightKeywords(message)} ]</div>
+    ${quote ? `<div class="alarm-quote">« ${quote} »</div>` : ""}
   `;
 }
 
@@ -1308,31 +1346,33 @@ function showLevelUpToast(){
   const messages = [
     "Niveau supérieur atteint.",
     `Nouveau rang : ${rankFor(state.level)}.`,
-    "Statistiques augmentées."
+    "Statistiques augmentées.",
+    `« ${randomMotivationalPhrase()} »`
   ];
   container.innerHTML = messages.map((msg, i) => `
-    <div class="cascade-item" style="animation-delay:${i * 0.35}s;">[ ${highlightKeywords(msg)} ]</div>
+    <div class="cascade-item" style="animation-delay:${i * 0.35}s;">${i === 3 ? highlightKeywords(msg) : "[ " + highlightKeywords(msg) + " ]"}</div>
   `).join("");
   container.classList.add("show");
   playLevelUpSound();
   setTimeout(() => {
     container.classList.remove("show");
     setTimeout(() => { container.innerHTML = ""; }, 400);
-  }, 4600);
+  }, 5600);
 }
 
 function showSimpleToast(msg){
   const toast = document.getElementById("levelup-toast");
-  toast.innerHTML = renderAlarmHTML(msg);
+  const isError = /^(Choisis|Renseigne|Donne un nom)|Pas assez|manque des pièces|Solde non chargé|Soldes non chargés/i.test(msg);
+  toast.innerHTML = renderAlarmHTML(msg, isError ? null : randomMotivationalPhrase());
   toast.classList.add("show");
-  if(/^(Choisis|Renseigne|Donne un nom)|Pas assez|manque des pièces|Solde non chargé|Soldes non chargés/i.test(msg)){
+  if(isError){
     playErrorBuzz();
   } else if(/record\(s\)/i.test(msg)){
     playRecordFanfare();
   } else {
     playSystemBeep();
   }
-  setTimeout(() => toast.classList.remove("show"), 2800);
+  setTimeout(() => toast.classList.remove("show"), 3200);
 }
 
 /* ---------- Aide pour construire une table d'exercices avec inputs ---------- */
