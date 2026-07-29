@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Playlists — Yetsu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#050810">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Yetsu">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png">
+</head>
+<body>
+
+<div id="nav-container"></div>
+
+<div class="wrap">
+  <div id="minibar-container"></div>
+
+  <div class="section" style="border-top:1px solid var(--iron); padding-top:34px;">
+    <div class="section-head">
+      <div class="rune-mark">Son de combat</div>
+      <h2>Playlists</h2>
+      <p class="lede">Chaque ambiance ouvre une recherche Spotify pré-remplie — clique pour lancer directement l'app (ou le lecteur web) sur les morceaux qui correspondent. Aucun compte requis pour l'app Yetsu, juste ton Spotify habituel.</p>
+    </div>
+    <div id="playlist-grid"></div>
+  </div>
+</div>
+
+<footer>Yetsu · tes données restent stockées sur cet appareil (stockage persistant du navigateur)</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="assets/firebase-config.js"></script>
+<script src="assets/app.js"></script>
+<script>
+  const PLAYLISTS = [
+    { name: "SHADOW MONARCH", vibe: "Phonk lourd, basses saturées — pour les grosses séries.", query: "phonk dark aggressive gym workout" },
+    { name: "AFTER DARK // SLOWED", vibe: "Ralenti, reverb, montée en intensité progressive.", query: "after dark slowed reverb phonk" },
+    { name: "RANG S ONLY", vibe: "Phonk énergique pur — pour les PR et les séries lourdes.", query: "phonk hardcore gym motivation" },
+    { name: "NIGHT DRIVE PHONK", vibe: "Ambiance nocturne, drift phonk, tempo modéré-rapide.", query: "night drive phonk drift" },
+    { name: "ÉVEIL DU CHASSEUR", vibe: "Commence lent, accélère — parfait pour l'échauffement.", query: "gym warmup phonk motivation" },
+    { name: "NO PAIN NO RANK", vibe: "Brutal, sans répit — pour le cardio et le HIIT.", query: "brutal gym phonk hiit workout" },
+    { name: "DEMON KING ENERGY", vibe: "Sombre et agressif, memphis rap + phonk.", query: "memphis rap phonk dark aggressive" },
+  ];
+
+  function spotifySearchUrl(query){
+    return "https://open.spotify.com/search/" + encodeURIComponent(query);
+  }
+
+  function renderPlaylists(){
+    const el = document.getElementById("playlist-grid");
+    el.innerHTML = `
+      <div class="activity-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:14px;">
+        ${PLAYLISTS.map(p => `
+          <div class="exo-card">
+            <div class="exo-head">
+              <div>
+                <div class="exo-name">${p.name}</div>
+                <div class="exo-desc">${p.vibe}</div>
+              </div>
+            </div>
+            <div class="exo-media">
+              <a class="btn" style="text-decoration:none; display:inline-block;" target="_blank" rel="noopener" href="${spotifySearchUrl(p.query)}">▶ Ouvrir sur Spotify</a>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  (async () => {
+    await initPage("playlists");
+    renderPlaylists();
+  })();
+</script>
+<script>
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(err => console.warn("Service worker non enregistré :", err));
+    });
+  }
+</script>
+</body>
+</html>

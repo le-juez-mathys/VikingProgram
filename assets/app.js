@@ -1750,6 +1750,7 @@ const MEAL_VEGETABLES = [
   { name:"Roquette",              qty:80,  unit:"g", kcal:20,  protein:2.1 },
   { name:"Petits pois",           qty:150, unit:"g", kcal:122, protein:8.1 },
   { name:"Navet",                 qty:150, unit:"g", kcal:42,  protein:1.4 },
+  { name:"Chou de Bruxelles",     qty:150, unit:"g", kcal:65,  protein:5.1 },
 ];
 
 // Sauces : pour napper/accompagner le repas (distinct des épices sèches).

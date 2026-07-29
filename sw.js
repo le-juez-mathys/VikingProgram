@@ -1,10 +1,11 @@
-const CACHE_NAME = "yetsu-v6";
+const CACHE_NAME = "yetsu-v7";
 const CORE_ASSETS = [
   "index.html",
   "nutrition.html",
   "corps.html",
   "custom.html",
   "suivi.html",
+  "playlists.html",
   "assets/style.css",
   "assets/app.js",
   "assets/icon-192.png",
